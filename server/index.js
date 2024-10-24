@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-const dotenv = require('dotenv').config()
+const path = require('path')
+const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -14,7 +15,10 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD, // alterar para a sua senha
   database: process.env.DB_DATABASE, // alterar para o seu banco de dados
 });
-
+console.log(process.env.DB_HOST)
+console.log(process.env.DB_USER)
+console.log(process.env.DB_PASSWORD)
+console.log(process.env.DB_DATABASE)
 db.connect((err) => {
   if (err) {
     throw err;
