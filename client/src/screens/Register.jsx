@@ -14,7 +14,11 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
 
   const handleRegister = () => {
-    axios
+    if (username || password === null) {
+      toast.error(`Puste`);
+    }
+    else {
+      axios
       .post('http://localhost:3001/register', { username, password })
       .then((res) => {
         toast.success(res.data.message);
@@ -22,6 +26,7 @@ export function RegisterPage() {
       .catch((err) => {
         toast.error(err.response.data.message);
       });
+    }
   };
 
   return (

@@ -2,12 +2,16 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 export const Container = styled.div`
+  height: 98vh;
+    box-sizing: border-box;
   width: 100%;
-  height: 95vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(to right, #da4453, #89216b);
+
 `;
+
 
 export const ContainerLogin = styled.div`
   width: 400px;
@@ -15,7 +19,7 @@ export const ContainerLogin = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border: 3px solid white;
+  /* border: 3px solid white; */
   border-radius: 25px;
   flex-direction: column;
   background-color: rgb(123, 54, 244);
@@ -70,20 +74,32 @@ export const LoginArea = styled.div`
 `;
 
 export const InputArea = styled.input`
-  width: 70%;
+color: white;
+  width: 50%;
+  height: 45px;
   display: flex;
-  border-radius: 15px;
-  padding: 5px 10px;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(15, 15, 15, 0.6);
+  background-color: #1c1c1c;
+  border: 0;
+  &:focus {
+    border: 2px solid white;
+    transition: border-color 0.3s ease-in-out;
+    outline: none;
+  }
 `;
 
 export const ButtonLink = styled(Link)`
   text-decoration: none;
   color: black;
-  width: 40%;
+  width: 35%;
+  outline: 0;
   background-color: white;
-  border-radius: 15px;
+  border-radius: 3px;
   text-align: center;
-  padding: 2px 0;
+  margin: 15px;
+  padding: 7px 0;
 `;
 
 export const LoggedContainer = styled.div`
@@ -95,3 +111,22 @@ export const LoggedContainer = styled.div`
   justify-content: space-around;
   text-align: center;
 `;
+
+export const NewLoginArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  width: 300px;
+  height: 400px;
+  background-color: rgb(21,21,21);
+`
+
+export const DivForInputs = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  height: 60px;
+`
