@@ -6,8 +6,6 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
 
-  console.log(user);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
 

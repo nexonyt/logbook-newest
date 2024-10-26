@@ -25,6 +25,8 @@ const Main = () => {
         <MainDiv>
             <h1>Witamy w Logbooku!</h1>
             <ButtonLink to='/' onClick={handleLogout}>Logout</ButtonLink>
+
+            
         </MainDiv>
     )
 };

@@ -26,6 +26,19 @@ export const ContainerLogin = styled.div`
   padding: 10px;
 `;
 
+export const ContainerRegister = styled.div`
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* border: 3px solid white; */
+  border-radius: 25px;
+  flex-direction: column;
+  background-color: rgb(123, 54, 244);
+  padding: 10px;
+`;
+
 export const LoggedArea = styled.div`
   width: 90%;
   display: flex;
@@ -79,11 +92,13 @@ color: white;
   height: 45px;
   display: flex;
   border-radius: 5px;
+  text-indent: 15px;
   outline: none;
   box-shadow: 0 2px 8px rgba(15, 15, 15, 0.6);
   background-color: #1c1c1c;
   border: 0;
   &:focus {
+    text-indent: 15px;
     border: 2px solid white;
     transition: border-color 0.3s ease-in-out;
     outline: none;
@@ -100,6 +115,10 @@ export const ButtonLink = styled(Link)`
   text-align: center;
   margin: 15px;
   padding: 7px 0;
+  &:hover {
+  background-color: #c4c4c4;
+  transition: all 0.3s ease-in-out
+  }
 `;
 
 export const LoggedContainer = styled.div`
@@ -123,10 +142,30 @@ export const NewLoginArea = styled.div`
   background-color: rgb(21,21,21);
 `
 
+export const NewRegisterArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  width: 300px;
+  height: 400px;
+  background-color: rgb(21,21,21);
+`
+
 export const DivForInputs = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 400px;
   height: 60px;
+`
+export const HaveNotAccount = styled.div`
+display: flex;
+color: white;
+text-decoration: underline;
+
+&:hover {
+cursor: pointer;
+}
 `

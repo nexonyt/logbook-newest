@@ -1,4 +1,5 @@
 const express = require('express');
+const clc = require("cli-color");
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
@@ -15,15 +16,12 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD, // alterar para a sua senha
   database: process.env.DB_DATABASE, // alterar para o seu banco de dados
 });
-console.log(process.env.DB_HOST)
-console.log(process.env.DB_USER)
-console.log(process.env.DB_PASSWORD)
-console.log(process.env.DB_DATABASE)
+
 db.connect((err) => {
   if (err) {
     throw err;
   }
-  console.log('Connected to the database!');
+  console.log(clc.green('Connected to the database!'));
 });
 
 // Rota de registro de usuário

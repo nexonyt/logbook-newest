@@ -3,15 +3,10 @@ import axios from 'axios';
 import {
   DivForInputs,
   ButtonLink,
-  ButtonLogout,
-  ButtonLogoutArea,
   Container,
-  ContainerLogin,
   InputArea,
-  LoggedArea,
-  LoggedAreaText,
-  LoginArea,
-  NewLoginArea
+  NewLoginArea,
+  HaveNotAccount
 } from '../styles';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
@@ -52,12 +47,17 @@ export function LoginPage() {
         //navigate("/dashboard");
       })
       .catch((err) => {
-        toast.error(err.response.data.message);
+        toast.error(err.response);
         toast.error('If you do not have an account, register');
       });
     };
     
   }
+
+  const redirectToRegister = () => {
+    navigate('/register')
+  }
+
   const ProtectedRoute = () => {
     const token = localStorage.getItem('token');
     console.log(token);
@@ -98,6 +98,9 @@ export function LoginPage() {
             disabled={isAuthenticated}
           /></DivForInputs>
            <ButtonLink onClick={handleLogin}>Login</ButtonLink>
+           <HaveNotAccount onClick={redirectToRegister}>
+            <p>Zarejestruj się</p>
+           </HaveNotAccount>
           </NewLoginArea>
            
       )}
