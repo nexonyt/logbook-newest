@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import {
+  DivForInputs,
   ButtonLink,
   ButtonLogout,
   ButtonLogoutArea,
@@ -10,6 +11,7 @@ import {
   LoggedArea,
   LoggedAreaText,
   LoginArea,
+  NewLoginArea
 } from '../styles';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
@@ -36,21 +38,26 @@ export function LoginPage() {
   };
 
   const handleLogin = () => {
-    axios
+    if (username === '' || username == null) {
+      toast.error("Nic nie podałeś")
+    }
+    else {
+      axios
       .post('http://localhost:3001/login', { username, password })
       .then((res) => {
         const { token } = res.data;
         login(token);
         toast.success('Login successful');
         toast.success('Valid token, you have access to private route');
-        navigate("/dashboard");
+        //navigate("/dashboard");
       })
       .catch((err) => {
         toast.error(err.response.data.message);
         toast.error('If you do not have an account, register');
       });
-  };
-
+    };
+    
+  }
   const ProtectedRoute = () => {
     const token = localStorage.getItem('token');
     console.log(token);
@@ -65,51 +72,36 @@ export function LoginPage() {
 
   return (
     <Container>
-      <ContainerLogin>
-        <LoggedArea>
+      
+       
           {isAuthenticated ? (
-            <>
-              <LoggedAreaText>
-                <FaUser size={20} style={{ marginRight: '0px' }} />
-                <div>{username}</div>
-              </LoggedAreaText>
-              <ButtonLogoutArea>
-                <ButtonLogout onClick={handleLogout}>Logout</ButtonLogout>
-              </ButtonLogoutArea>
-            </>
+            navigate('/dashboard')
           ) : (
-            <>
-              <LoggedAreaText>
-                <FaUser size={20} style={{ marginRight: '0px' }} /> {'Username'}
-              </LoggedAreaText>
-              <ButtonLogoutArea />
-            </>
-          )}
-        </LoggedArea>
-
-        <LoginArea>
-          <h1>LOGIN</h1>
+            
+          <NewLoginArea>
+          <h2 style={{color: 'white'}}>Zaloguj się!</h2>
+          <DivForInputs>
           <InputArea
-            type='text'
-            placeholder='Username'
+            type='login'
+            placeholder='Login'
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             disabled={isAuthenticated}
           />
-          <InputArea
+          </DivForInputs>
+          <DivForInputs>
+           <InputArea
             type='password'
             placeholder='Password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isAuthenticated}
-          />
-          <ButtonLink onClick={handleLogin}>Login</ButtonLink>
-          <ButtonLink to='/register'>Register</ButtonLink>
-          <ButtonLink to='/logged' onClick={ProtectedRoute}>
-            Private Route
-          </ButtonLink>
-        </LoginArea>
-      </ContainerLogin>
+          /></DivForInputs>
+           <ButtonLink onClick={handleLogin}>Login</ButtonLink>
+          </NewLoginArea>
+           
+      )}
     </Container>
   );
 }
+
