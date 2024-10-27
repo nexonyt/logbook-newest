@@ -30,7 +30,7 @@ export function RegisterPage() {
     }
     else {
       axios
-      .post('http://localhost:3001/register', { username, password })
+      .post('/register', { username, password })
       .then((res) => {
         toast.success(res.data.message);
       })

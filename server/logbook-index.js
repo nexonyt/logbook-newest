@@ -7,9 +7,11 @@ const cors = require('cors');
 const path = require('path')
 const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 const app = express();
-app.use(cors());
 app.use(express.json());
-
+app.use(cors({
+  origin: '*', // Pozwala na połączenia z dowolnej domeny
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 const db = mysql.createConnection({
   host: process.env.DB_HOST, // alterar para o seu host
   user: process.env.DB_USER, // alterar para o seu usuário
@@ -19,10 +21,12 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    throw err;
+    throw err.message;
   }
   console.log(clc.green('Connected to the database!'));
 });
+
+app.use("/", require("./routes/authRoutes"));
 
 // Rota de registro de usuário
 app.post('/register', (req, res) => {
@@ -66,47 +70,47 @@ app.post('/register', (req, res) => {
 });
 
 // Rota de login de usuário
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+// app.post('/login', (req, res) => {
+//   const { username, password } = req.body;
 
-  // Verificar se o usuário existe no banco de dados
-  db.query(
-    'SELECT * FROM users WHERE username = ?',
-    [username],
-    (err, results) => {
-      if (err) {
-        throw err;
-      }
+//   // Verificar se o usuário existe no banco de dados
+//   db.query(
+//     'SELECT * FROM users WHERE username = ?',
+//     [username],
+//     (err, results) => {
+//       if (err) {
+//         throw err;
+//       }
 
-      if (results.length === 0) {
-        return res
-          .status(401)
-          .json({ message: 'Username or password is invalid' });
-      }
+//       if (results.length === 0) {
+//         return res
+//           .status(401)
+//           .json({ message: 'Username or password is invalid' });
+//       }
 
-      // Comparar a senha fornecida com a senha armazenada no banco de dados
-      bcrypt.compare(password, results[0].password, (err, match) => {
-        if (err) {
-          throw err;
-        }
+//       // Comparar a senha fornecida com a senha armazenada no banco de dados
+//       bcrypt.compare(password, results[0].password, (err, match) => {
+//         if (err) {
+//           throw err;
+//         }
 
-        if (!match) {
-          return res
-            .status(401)
-            .json({ message: 'Username or password is invalid' });
-        }
+//         if (!match) {
+//           return res
+//             .status(401)
+//             .json({ message: 'Username or password is invalid' });
+//         }
 
-        // Gerar um token JWT
-        const token = jwt.sign({ username: results[0].username }, 'jwt', {
-          expiresIn: '1h',
-        });
-        console.log(token);
+//         // Gerar um token JWT
+//         const token = jwt.sign({ username: results[0].username }, 'jwt', {
+//           expiresIn: '1h',
+//         });
+//         console.log(`Wygenerowano token na 1h dla: ${results[0].username}`);
 
-        res.status(200).json({ token });
-      });
-    }
-  );
-});
+//         res.status(200).json({ token });
+//       });
+//     }
+//   );
+// });
 
 // Função de middleware para verificar o token
 function verifyToken(req, res, next) {
@@ -133,6 +137,6 @@ app.get('/protected', verifyToken, (req, res) => {
   res.status(200).json({ message: 'Your Token is valid' });
 });
 
-app.listen(3001, () => {
-  console.log('Server started on port 3001');
+app.listen(4040, () => {
+  console.log('Server started on port 4040');
 });
