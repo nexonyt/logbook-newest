@@ -5,3 +5,8 @@ body,html {
 * {
   box-sizing: border-box;
 }
+
+.navbarek {
+  color: red;
+  background-color: aqua;
+}

@@ -38,6 +38,7 @@ app.post('/register', (req, res) => {
     [username],
     (err, results) => {
       if (err) {
+        console.log(err)
         throw err;
       }
 

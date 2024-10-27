@@ -7,13 +7,16 @@ export const NavBarStyle = styled.div`
   position: sticky;
   color: white;
   top: 0;
-
+  height: 100vh; /* Ustawienie pełnej wysokości dla navbara */
   flex-direction: column;
   gap: 5rem;
   width: 12rem;
   min-height: 100vh;
   background-color: #131218;
   justify-content: space-between;
+  &:p{
+    background: linear-gradient(to right, #da4453, #89216b);
+  }
 `;
 
 export const NavGroup = styled.div`
@@ -46,7 +49,11 @@ export const StyledLink = styled(Link)`
   transition: color 0.3s ease;
 
   &:hover {
-    color: #ff7a00; /* Pomarańczowy kolor przy hover */
+    /* color: #ff7a00; Pomarańczowy kolor przy hover */
+    background: linear-gradient(to right, #da4453, #89216b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
   }
 
   &:active {

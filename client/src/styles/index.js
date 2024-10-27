@@ -180,7 +180,8 @@ export const CheckboxMark = styled.div`
 `
 export const DashboardContent = styled.div`
 display: flex;
-min-height: 100%;
+height: 100vh;
+overflow-y: auto; 
 min-width: 85vw;
 justify-content: center;
 flex-direction: column;
@@ -189,4 +190,6 @@ align-items: center;
 
 
 export const FlightsContent = styled.div`
+height: 100vh;
+overflow-y: auto; 
 `

@@ -5,6 +5,8 @@ import { Logged } from './screens/Looged';
 import Main from './pages/Main';
 import PrivateRoutes from './utils/PrivateRoutes';
 import Flights from './pages/Flights';
+import AddFlights from './pages/AddFlight';
+import Stats from './screens/Stats';
 
 export function Router() {
   return (
@@ -13,6 +15,9 @@ export function Router() {
         <Route path='/dashboard' element={<Main />} />
         <Route path='/nexonyt' element={<Main />} />
         <Route path='/flights' element={<Flights />} />
+        <Route path='/add-flight' element={<AddFlights />} />
+        <Route path='/stats' element={<Stats />} />
+
       </Route>
       <Route path='/' element={<LoginPage />} />
       <Route path='/register' element={<RegisterPage />} />
