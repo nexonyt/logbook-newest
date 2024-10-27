@@ -24,7 +24,7 @@ export function LoginPage() {
   const handleLogout = () => {
     logout();
     clearFields();
-    toast.warn('You have been logged out');
+    toast.warn('Nastąpiło wylogowanie');
   };
 
   const clearFields = () => {
@@ -42,13 +42,11 @@ export function LoginPage() {
       .then((res) => {
         const { token } = res.data;
         login(token);
-        toast.success('Login successful');
-        toast.success('Valid token, you have access to private route');
-        //navigate("/dashboard");
+        toast.success('Logowanie prawidłowe');
       })
       .catch((err) => {
         toast.error(err.response);
-        toast.error('If you do not have an account, register');
+        toast.error('Jeżeli nie masz konta, zarejestruj się');
       });
     };
     

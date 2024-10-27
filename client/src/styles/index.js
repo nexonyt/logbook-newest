@@ -113,7 +113,7 @@ export const ButtonLink = styled(Link)`
   background-color: white;
   border-radius: 3px;
   text-align: center;
-  margin: 15px;
+  margin-top: 15px;
   padding: 7px 0;
   &:hover {
   background-color: #c4c4c4;
@@ -161,11 +161,32 @@ export const DivForInputs = styled.div`
   height: 60px;
 `
 export const HaveNotAccount = styled.div`
-display: flex;
+/* display: flex; */
 color: white;
 text-decoration: underline;
 
 &:hover {
 cursor: pointer;
 }
+`
+
+export const CheckboxField = styled.div`
+font-size: 14px;
+  color: white;
+`
+
+export const CheckboxMark = styled.div`
+
+`
+export const DashboardContent = styled.div`
+display: flex;
+min-height: 100%;
+min-width: 85vw;
+justify-content: center;
+flex-direction: column;
+align-items: center;
+`
+
+
+export const FlightsContent = styled.div`
 `

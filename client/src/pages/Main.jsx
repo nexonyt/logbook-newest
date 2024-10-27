@@ -1,14 +1,16 @@
 import styled from 'styled-components';
+import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/useAuth';
-import { ButtonLink } from '../styles';
+import { ButtonLink,DashboardContent } from '../styles';
+
 const MainDiv = styled.div`
     background-color: white;
     display: flex;
+    align-items: center;
     width: 100%;
     height: 100vh;
-    justify-content: center;
-    align-items: center;
+
 `
 
 const Main = () => {
@@ -23,10 +25,23 @@ const Main = () => {
 
     return (
         <MainDiv>
+            <Navbar></Navbar>
+            <DashboardContent>
             <h1>Witamy w Logbooku!</h1>
-            <ButtonLink to='/' onClick={handleLogout}>Logout</ButtonLink>
-
-            
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>
+            <h1>Witamy w Logbooku!</h1>ś
+            </DashboardContent>
         </MainDiv>
     )
 };

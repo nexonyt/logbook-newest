@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Checkbox from '../styles/Checkbox';
 import axios from 'axios';
 import {
   DivForInputs,
@@ -6,7 +7,8 @@ import {
   Container,
   InputArea,
   NewRegisterArea,
-  HaveNotAccount
+  HaveNotAccount,
+  CheckboxField
 } from '../styles';
 import { toast } from 'react-toastify';
 import { FaUser } from 'react-icons/fa';
@@ -75,6 +77,9 @@ export function RegisterPage() {
       onChange={(e) => setPassword(e.target.value)}
       disabled={isAuthenticated}
     /></DivForInputs>
+    <CheckboxField>
+     <Checkbox/>
+      </CheckboxField>
      <ButtonLink onClick={handleRegister}>Register</ButtonLink>
      <HaveNotAccount onClick={redirectToLogin}>
             <p>Zaloguj się do konta</p>
