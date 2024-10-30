@@ -182,14 +182,9 @@ export const DashboardContent = styled.div`
 display: flex;
 height: 100vh;
 overflow-y: auto; 
-min-width: 85vw;
+width: 100%;
 justify-content: center;
 flex-direction: column;
 align-items: center;
 `
 
-
-export const FlightsContent = styled.div`
-height: 100vh;
-overflow-y: auto; 
-`

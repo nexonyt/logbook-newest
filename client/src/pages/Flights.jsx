@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import NavBar from "../components/Navbar";
-import { FlightsContent } from "../styles";
 
 const MainDiv = styled.div`
     background-color: white;
@@ -11,6 +10,19 @@ const MainDiv = styled.div`
     height: 100vh;
 `
 
+const MainDivForFlightDetails = styled.div`
+    display: flex;
+    justify-content: center;
+    border: 1px solid red;
+    width: 100%;
+    height: 80%;
+`
+export const FlightsContent = styled.div`
+height: 100vh;
+overflow-y: auto; 
+width: 100%;
+`
+
 export default function Flights() {
     const [loty,setLoty] = useState();
 
@@ -18,7 +30,9 @@ export default function Flights() {
         <MainDiv>
             <NavBar></NavBar>
             <FlightsContent>
+            <MainDivForFlightDetails>
             <p>Loty</p>
+            </MainDivForFlightDetails>
             </FlightsContent>        
         </MainDiv>
         

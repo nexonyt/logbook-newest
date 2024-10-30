@@ -12,7 +12,8 @@ export function App() {
   return (
     <BrowserRouter>
       <Router />
-      <ToastContainer />
+      <ToastContainer position="bottom-right" theme="dark" closeOnClick={false} pauseOnFocusLoss={false}
+      />
     </BrowserRouter>
   );
 }

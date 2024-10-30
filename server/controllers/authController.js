@@ -42,7 +42,7 @@ const loginUser = async (req, res) => {
                     }
                     
                     // Gerar um token JWT
-                    const token = jwt.sign({ username: results[0].username }, 'jwt', {
+                    const token = jwt.sign({ username: results[0].username,user_id:results[0].id }, 'jwt', {
                         expiresIn: '1h',
                     });
                     console.log(`Wygenerowano token na 1h dla: ${results[0].username}`);
