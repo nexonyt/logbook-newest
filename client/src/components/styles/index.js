@@ -17,6 +17,11 @@ export const NavBarStyle = styled.div`
   &:p{
     background: linear-gradient(to right, #da4453, #89216b);
   }
+
+  /* @media (max-width: 800px) {
+    width: 6rem;
+  } */
+
 `;
 
 export const NavGroup = styled.div`
