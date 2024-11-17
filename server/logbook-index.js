@@ -13,12 +13,13 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 const db = mysql.createConnection({
-  host: process.env.DB_HOST, // alterar para o seu host
-  user: process.env.DB_USER, // alterar para o seu usuário
-  password: process.env.DB_PASSWORD, // alterar para a sua senha
-  database: process.env.DB_DATABASE, // alterar para o seu banco de dados
+  host: process.env.DB_HOST, 
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 });
-
+console.log(`Host: ${process.env.DB_HOST}`)
+console.log(`Database: ${process.env.DB_DATABASE}`)
 db.connect((err) => {
   if (err) {
     throw err.message;

@@ -15,6 +15,7 @@ const loginUser = async (req, res) => {
       
         const { username, password } = req.body;
        
+
        
         db.query(
             'SELECT * FROM users WHERE username = ?',

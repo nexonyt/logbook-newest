@@ -1,5 +1,14 @@
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled,{keyframes} from 'styled-components';
+
+export const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 export const Container = styled.div`
   height: 98vh;
@@ -105,6 +114,25 @@ color: white;
   }
 `;
 
+export const InputAreaForRegister = styled.input`
+color: white;
+  width: 80%;
+  height: 45px;
+  display: flex;
+  border-radius: 5px;
+  text-indent: 15px;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(15, 15, 15, 0.6);
+  background-color: #1c1c1c;
+  border: 0;
+  &:focus {
+    text-indent: 15px;
+    border: 2px solid white;
+    transition: border-color 0.3s ease-in-out;
+    outline: none;
+  }
+`;
+
 export const ButtonLink = styled(Link)`
   text-decoration: none;
   color: black;
@@ -132,6 +160,7 @@ export const LoggedContainer = styled.div`
 `;
 
 export const NewLoginArea = styled.div`
+animation: ${fadeIn} 0.4s ease-in-out;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -143,21 +172,32 @@ export const NewLoginArea = styled.div`
 `
 
 export const NewRegisterArea = styled.div`
+  animation: ${fadeIn} 0.4s ease-in-out;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 15px;
-  width: 300px;
-  height: 400px;
+  padding: 30px;
+  width: 500px;
+  height: 75vh;
   background-color: rgb(21,21,21);
 `
+
+export const AddFlightsDivRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  margin: 10px 5px;
+`;
 
 export const DivForInputs = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 400px;
+  width: 300px;
   height: 60px;
 `
 export const HaveNotAccount = styled.div`
@@ -175,6 +215,7 @@ font-size: 14px;
   color: white;
 `
 
+
 export const CheckboxMark = styled.div`
 
 `
@@ -187,4 +228,3 @@ justify-content: center;
 flex-direction: column;
 align-items: center;
 `
-

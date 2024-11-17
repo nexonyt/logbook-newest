@@ -1,6 +1,6 @@
 import './Checkbox.css';
 
-export default function Checkbox() {
+export default function Checkbox(props) {
     return (
       <div class="checkbox-wrapper-33">
       <label class="checkbox">
@@ -10,7 +10,7 @@ export default function Checkbox() {
             <path d="M4 14l8 7L24 7"></path>
           </svg>
         </span>
-        <p class="checkbox__textwrapper">Akceptuję regulamin usługi</p>
+        <p class="checkbox__textwrapper">{props.value}</p>
       </label>
     </div>
     );
