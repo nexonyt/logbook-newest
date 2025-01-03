@@ -12,14 +12,32 @@ app.use(cors({
   origin: '*', // Pozwala na połączenia z dowolnej domeny
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+
+const ENV = process.env.ENVIORMENT;
+let [db_host,db_user,db_password,db_database] = "";
+
+if(ENV=="PRODUCTION") {
+  db_host = process.env.DB_HOST_PROD 
+  db_user= process.env.DB_USER_PROD 
+  db_password= process.env.DB_PASSWORD_PROD 
+  db_database= process.env.DB_DATABASE_PROD 
+}
+else if (ENV=="RC") {
+  db_host = process.env.DB_HOST_RC
+  db_user= process.env.DB_USER_RC
+  db_password= process.env.DB_PASSWORD_RC
+  db_database= process.env.DB_DATABASE_RC
+}
+
 const db = mysql.createConnection({
-  host: process.env.DB_HOST, 
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  host: db_host, 
+  user: db_user,
+  password: db_password,
+  database: db_database,
 });
-console.log(`Host: ${process.env.DB_HOST}`)
-console.log(`Database: ${process.env.DB_DATABASE}`)
+
+console.log(`Host: ${db_host}`)
+console.log(`Database: ${db_database}`)
 db.connect((err) => {
   if (err) {
     throw err.message;
@@ -71,48 +89,48 @@ app.post('/register', (req, res) => {
   );
 });
 
-// Rota de login de usuário
-// app.post('/login', (req, res) => {
-//   const { username, password } = req.body;
 
-//   // Verificar se o usuário existe no banco de dados
-//   db.query(
-//     'SELECT * FROM users WHERE username = ?',
-//     [username],
-//     (err, results) => {
-//       if (err) {
-//         throw err;
-//       }
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-//       if (results.length === 0) {
-//         return res
-//           .status(401)
-//           .json({ message: 'Username or password is invalid' });
-//       }
+  // Verificar se o usuário existe no banco de dados
+  db.query(
+    'SELECT * FROM users WHERE username = ?',
+    [username],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
 
-//       // Comparar a senha fornecida com a senha armazenada no banco de dados
-//       bcrypt.compare(password, results[0].password, (err, match) => {
-//         if (err) {
-//           throw err;
-//         }
+      if (results.length === 0) {
+        return res
+          .status(401)
+          .json({ message: 'Username or password is invalid' });
+      }
 
-//         if (!match) {
-//           return res
-//             .status(401)
-//             .json({ message: 'Username or password is invalid' });
-//         }
+      // Comparar a senha fornecida com a senha armazenada no banco de dados
+      bcrypt.compare(password, results[0].password, (err, match) => {
+        if (err) {
+          throw err;
+        }
 
-//         // Gerar um token JWT
-//         const token = jwt.sign({ username: results[0].username }, 'jwt', {
-//           expiresIn: '1h',
-//         });
-//         console.log(`Wygenerowano token na 1h dla: ${results[0].username}`);
+        if (!match) {
+          return res
+            .status(401)
+            .json({ message: 'Username or password is invalid' });
+        }
 
-//         res.status(200).json({ token });
-//       });
-//     }
-//   );
-// });
+        // Gerar um token JWT
+        const token = jwt.sign({ username: results[0].username }, 'jwt', {
+          expiresIn: '1h',
+        });
+        console.log(`Wygenerowano token na 1h dla: ${results[0].username}`);
+
+        res.status(200).json({ token });
+      });
+    }
+  );
+});
 
 // Função de middleware para verificar o token
 function verifyToken(req, res, next) {

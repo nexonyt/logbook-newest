@@ -1,13 +1,30 @@
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path')
+const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+const ENV = process.env.ENVIORMENT;
+let [db_host,db_user,db_password,db_database] = "";
+
+if(ENV=="PRODUCTION") {
+  db_host = process.env.DB_HOST_PROD 
+  db_user= process.env.DB_USER_PROD 
+  db_password= process.env.DB_PASSWORD_PROD 
+  db_database= process.env.DB_DATABASE_PROD 
+}
+else if (ENV=="RC") {
+  db_host = process.env.DB_HOST_RC
+  db_user= process.env.DB_USER_RC
+  db_password= process.env.DB_PASSWORD_RC
+  db_database= process.env.DB_DATABASE_RC
+}
 
 const db = mysql.createConnection({
-    host: process.env.DB_HOST, // alterar para o seu host
-    user: process.env.DB_USER, // alterar para o seu usuário
-    password: process.env.DB_PASSWORD, // alterar para a sua senha
-    database: process.env.DB_DATABASE, // alterar para o seu banco de dados
-  });
+  host: db_host, 
+  user: db_user,
+  password: db_password,
+  database: db_database,
+});
 
   
 const loginUser = async (req, res) => {
