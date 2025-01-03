@@ -92,6 +92,7 @@ const AirportSearchInput = ({ placeholder, onAirportSelect, airports }) => {
         placeholder={placeholder}
         value={query}
         onChange={handleInputChange}
+        
       />
       {filteredAirports.length > 0 && (
         <SuggestionsList>

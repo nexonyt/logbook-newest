@@ -50,7 +50,7 @@ export default function AddFlights() {
     fliDetails: "",
     fliAircraftType: "",
   });
-
+  console.log(preFlightData)
   let flightNumber = "";
   let flightDeparture = "";
   const sendData = () => {
@@ -103,7 +103,6 @@ export default function AddFlights() {
   return (
     <MainDiv>
       <NavBar></NavBar>
-
       <FlightsContent>
         <AddFlightsDiv>
           <HeaderTitle>Uzupełnij dane swojego lotu</HeaderTitle>
@@ -120,6 +119,12 @@ export default function AddFlights() {
               <AddFlightsInput
                 type="text"
                 placeholder="Enter Air"
+                onChange={(e) =>
+                  setPreFlightData({
+                    ...preFlightData,
+                    flightNumber: e.target.value,
+                  })
+                }
               ></AddFlightsInput>
             </DivContainerWithLabel>
           </AddFlightsDivRow>
@@ -129,6 +134,12 @@ export default function AddFlights() {
               <AddFlightsInput
                 type="text"
                 placeholder="15.07.2024"
+                onChange={(e) =>
+                  setPreFlightData({
+                    ...preFlightData,
+                    flightDateDeparture: e.target.value,
+                  })
+                }
               ></AddFlightsInput>
             </DivContainerWithLabel>
             <DivContainerWithLabel>
@@ -166,22 +177,44 @@ export default function AddFlights() {
             </DivContainerWithLabel>
           </AddFlightsDivRow>
           <AddFlightsDivRow>
-          <DivContainerWithLabel>
-        <CustomLabel>Kod ICAO lotniska przylotu</CustomLabel>
-        <AirportSearchInput
-          placeholder="Wpisz kod ICAO lub nazwę lotniska"
-          onAirportSelect={(airport) => handleAirportSelect(airport, "ICAO przylotu")}
-          airports={airports}
-        />
-      </DivContainerWithLabel>
-      <DivContainerWithLabel>
-        <CustomLabel>Kod IATA lotniska przylotu</CustomLabel>
-        <AirportSearchInput
-          placeholder="Wpisz kod IATA lub nazwę lotniska"
-          onAirportSelect={(airport) => handleAirportSelect(airport, "IATA przylotu")}
-          airports={airports}
-        />
-      </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Kod ICAO lotniska przylotu</CustomLabel>
+              <AirportSearchInput
+                placeholder="Wpisz kod ICAO lub nazwę lotniska"
+                onChange={(e) => {
+
+                  setPreFlightData({
+                    ...preFlightData,
+                    flightDepartureICAO: e.target.value,
+                  });
+                }}
+                onAirportSelect={(airport) => {
+
+                  setPreFlightData({
+                    ...preFlightData,
+                    flightDepartureICAO: airport.icao,
+                  });
+                }}
+                airports={airports}
+              />
+
+            </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Kod IATA lotniska przylotu</CustomLabel>
+              <AirportSearchInput
+                placeholder="Wpisz kod IATA lub nazwę lotniska"
+                onAirportSelect={(airport) => handleAirportSelect(airport, "IATA przylotu")}
+                airports={airports}
+                type="text"
+
+                onChange={(e) =>
+                  setPreFlightData({
+                    ...preFlightData,
+                    flightArrivalIATA: e.target.value,
+                  })
+                }
+              />
+            </DivContainerWithLabel>
           </AddFlightsDivRow>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
@@ -225,7 +258,7 @@ export default function AddFlights() {
           <SubmitButton>Zapisz lot</SubmitButton>
         </AddFlightsDiv>
       </FlightsContent>
-  
+
     </MainDiv>
   );
 }
