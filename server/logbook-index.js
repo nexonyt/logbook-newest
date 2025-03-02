@@ -35,14 +35,15 @@ const db = mysql.createConnection({
   password: db_password,
   database: db_database,
 });
-
-console.log(`Host: ${db_host}`)
-console.log(`Database: ${db_database}`)
+console.log(`Host: ${process.env.DB_HOST}`)
+console.log(`Database: ${process.env.DB_DATABASE}`)
 db.connect((err) => {
   if (err) {
-    throw err.message;
+    console.log(err.message);
   }
-  console.log(clc.green('Connected to the database!'));
+  else {
+    console.log(clc.green('Connected to the database!'));
+  }
 });
 
 app.use("/", require("./routes/authRoutes"));
