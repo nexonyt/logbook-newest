@@ -33,7 +33,7 @@ export function useAuth() {
 
   const handleVerify = (token) => {
     axios
-      .get('http://localhost:4040/protected', {
+      .get('https://api-flights.nexonstudio.pl/protected', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
