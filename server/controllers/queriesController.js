@@ -91,12 +91,12 @@ const getFlightsDurationSum = (req, res) => {
 `;
 
   const mostFrequentDepartureAirportSQL = `
-SELECT fli_dest_air_icao,fli_dest_air_iata  AS count 
+  SELECT fli_dest_air_icao,fli_dest_air_iata, count(fli_dest_air_iata) AS count
 FROM flights 
-WHERE user_id = ${userID} 
-GROUP BY fli_dest_air_icao 
-ORDER BY count DESC 
-LIMIT 1;
+WHERE user_id = ${userID}
+GROUP BY fli_dest_air_iata
+ORDER BY count DESC
+LIMIT 5
 `;
 
   const mostFrequentDestinationAirportSQL = `

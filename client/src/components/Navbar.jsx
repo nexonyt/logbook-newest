@@ -1,11 +1,11 @@
 import React from 'react';
-import { NavBarStyle, StyledLink,NavGroup,LogoutLink,NavGroupForLogout } from './styles'
-import {ButtonLink,} from '../styles'
+import { NavBarStyle, StyledLink, NavGroup, LogoutLink, NavGroupForLogout } from './styles';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
 import '../App.css';
+import { FaHome, FaPlane, FaPlusCircle, FaChartBar, FaSignOutAlt } from 'react-icons/fa'; // import ikon
 
-export default function NavBar () {
+export default function NavBar() {
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -13,18 +13,27 @@ export default function NavBar () {
     toast.warn('You have been logged out');
   };
 
-
-return (
+  return (
     <NavBarStyle>
-        <NavGroup>
-        <StyledLink class="navbarek" to="/dashboard">Panel główny</StyledLink>
-        <StyledLink to="/flights">Loty</StyledLink>
-        <StyledLink to="/add-flight">Dodaj lot</StyledLink>
-        <StyledLink to="/stats">Statystyki</StyledLink>
-        </NavGroup>
-        <NavGroupForLogout>
-        <LogoutLink to='/' onClick={handleLogout}>Wyloguj</LogoutLink>
-        </NavGroupForLogout>
+      <NavGroup>
+        <StyledLink to="/dashboard">
+          <FaHome style={{ marginRight: '6px' }} /> Panel główny
+        </StyledLink>
+        <StyledLink to="/flights">
+          <FaPlane style={{ marginRight: '6px' }} /> Loty
+        </StyledLink>
+        <StyledLink to="/add-flight">
+          <FaPlusCircle style={{ marginRight: '6px' }} /> Dodaj lot
+        </StyledLink>
+        <StyledLink to="/stats">
+          <FaChartBar style={{ marginRight: '6px' }} /> Statystyki
+        </StyledLink>
+      </NavGroup>
+      <NavGroupForLogout>
+        <LogoutLink to='/' onClick={handleLogout}>
+          <FaSignOutAlt style={{ marginRight: '6px' }} /> Wyloguj
+        </LogoutLink>
+      </NavGroupForLogout>
     </NavBarStyle>
-)
+  );
 };

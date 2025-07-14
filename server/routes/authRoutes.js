@@ -12,9 +12,9 @@ router.use(
   })
 );
 
-// router.post("/register", registerUser);
+//router.post("/register", registerUser);
 router.post('/login',loginUser)
-// router.post('/addflightquery',addFlightQuery)
-// router.post('/getflightdurationsum',getFlightsDurationSum)
-// router.post('/getAllFlights',getAllFlights);
+router.post('/addflightquery',addFlightQuery)
+router.post('/getflightdurationsum',getFlightsDurationSum)
+router.post('/getAllFlights',getAllFlights);
 module.exports = router;
