@@ -155,7 +155,7 @@ export default function Flights() {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.post("http://localhost:4040/getAllFlights", { userID: 1 });
+        const response = await axios.post("https://api-flights.nexonstudio.pl/getAllFlights", { userID: 1 });
         setFlights(response.data);
       } catch (err) {
         console.error("Błąd podczas pobierania lotów:", err);

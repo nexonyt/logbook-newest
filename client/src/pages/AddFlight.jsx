@@ -315,6 +315,10 @@ const AddFlightsDiv = styled.div`
   flex-direction: column;
   width: 90%;
   height: 100vh;
+
+  @media (max-width: 500px) {
+    margin: 50px;
+  }
 `;
 
 const AddFlightsInput = styled.input`
@@ -377,6 +381,12 @@ const AddFlightsDivRow = styled.div`
   flex-direction: row;
   width: 20%;
   margin: 10px 20px;
+
+@media (max-width: 500px) {
+      flex-direction: column;
+        width: 100%;
+          margin: 0px;
+  }
 `;
 
 const CustomLabel = styled.label`

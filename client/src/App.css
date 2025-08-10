@@ -5,3 +5,21 @@ body,html {
 * {
   box-sizing: border-box;
 }
+
+.mobile-menu-button {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100;
+  background: white;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block;
+  }
+}

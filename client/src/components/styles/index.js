@@ -16,22 +16,32 @@ export const NavBarStyle = styled.div`
   position: sticky;
   color: white;
   top: 0;
-  height: 100vh; /* Ustawienie pełnej wysokości dla navbara */
+  height: 100vh; /* pełna wysokość dla navbara */
   flex-direction: column;
   gap: 5rem;
   width: 12rem;
   min-height: 100vh;
   background-color: #131218;
   justify-content: space-between;
-  &:p{
+  transition: left 0.3s ease-in-out;
+
+  &:p {
     background: linear-gradient(to right, #da4453, #89216b);
   }
 
-  /* @media (max-width: 800px) {
-    width: 6rem;
-  } */
+  /* MOBILE - domyślnie schowany navbar */
+  @media (max-width: 800px) {
+    position: fixed;
+    left: -12rem; /* ukryty poza ekranem */
+    top: 0;
+    z-index: 1000;
 
+    &.open {
+      left: 0; /* wysunięty */
+    }
+  }
 `;
+
 
 export const NavGroup = styled.div`
   gap: 1rem;
