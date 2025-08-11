@@ -1,3 +1,11 @@
+
+// PRZEPISAĆ TO CAŁE NA NOWO BEZ AI!! 
+// PRZEPISAĆ TO CAŁE NA NOWO BEZ AI!! 
+// PRZEPISAĆ TO CAŁE NA NOWO BEZ AI!! 
+// PRZEPISAĆ TO CAŁE NA NOWO BEZ AI!! 
+// PRZEPISAĆ TO CAŁE NA NOWO BEZ AI!! 
+
+
 import { toast } from "react-toastify";
 import styled, { keyframes } from "styled-components";
 import NavBar from "../components/Navbar";
@@ -272,17 +280,6 @@ const fadeIn = keyframes`
   }
 `;
 
-const Sidebar = styled.div`
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: 250px; /* szerokość navbaru */
-  background-color: #f8f9fa;
-  border-right: 1px solid #ddd;
-  box-sizing: border-box;
-  padding-top: 20px;
-`;
 
 
 const HeaderTitle = styled.div`
@@ -293,7 +290,7 @@ const HeaderTitle = styled.div`
 const MainDiv = styled.div`
   background-color: white;
   display: flex;
-  min-height: 100vh;
+  min-height: 50vw;
 
 `;
 const FlightsContent = styled.div`
@@ -314,33 +311,30 @@ const AddFlightsDiv = styled.div`
   align-items: center;
   flex-direction: column;
   width: 90%;
-  height: 100vh;
+  /* height: 100vh; */
 
-  @media (max-width: 500px) {
-    margin: 50px;
+    @media (max-width: 768px) {
+    width: 90%;
   }
 `;
 
 const AddFlightsInput = styled.input`
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  display: block;
-  width: 200px;
+  width: 100%;
+  max-width: 300px;
   background-color: #e2e8f0;
-  color: #4a5568;
   border: 1px solid #e2e8f0;
   border-radius: 0.25rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  line-height: 1.25;
-  outline: none;
+  padding: 0.75rem 1rem;
+  color: #4a5568;
 
   &:focus {
     background-color: #ffffff;
     border-color: #a0aec0;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    margin-bottom: 10px;
   }
 `;
 
@@ -376,17 +370,24 @@ const InputWrapper = styled.div`
 
 const AddFlightsDivRow = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
   flex-direction: row;
-  width: 20%;
-  margin: 10px 20px;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  width: 100%;
 
-@media (max-width: 500px) {
-      flex-direction: column;
-        width: 100%;
-          margin: 0px;
+  @media (max-width: 800px) {
+    gap: 15px;
   }
+
+  /* @media (max-width: 500px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    
+  } */
 `;
 
 const CustomLabel = styled.label`
@@ -402,10 +403,11 @@ const CustomLabel = styled.label`
 const DivContainerWithLabel = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  margin: 0px 10px;
+  flex: 1; 
+  min-width: 250px; 
+  max-width: 500px;
+  margin: 0 10px;
 `;
-
 const SubmitButton = styled.button`
   display: inline-block;
   margin: 3rem 0;
