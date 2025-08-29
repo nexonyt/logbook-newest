@@ -77,7 +77,7 @@ const getFlightsDurationSum = (req, res) => {
 
 
   const sumTimeOfFlights = `SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = ${userID};`
-  const longestFlightSQL = `SELECT DATE_FORMAT(SEC_TO_TIME(MAX(TIME_TO_SEC(fli_duration))), '%H:%i') AS max_duration FROM flights WHERE user_id = ${userID};`;
+  const longestFlightSQL = `SELECT DATE_FORMAT(SEC_TO_TIME(MAX(TIME_TO_SEC(fli_duration))), '%H:%i') AS max_duration, fli_dest_air_icao,fli_dest_air_iata,fli_arr_air_icao,fli_arr_air_iata,fli_airline FROM flights WHERE user_id = ${userID};`;
   const maxDelaySQL = `SELECT fli_number,fli_dest_air_icao,fli_dest_air_iata, fli_arr_air_icao,fli_arr_air_iata, fli_delay,fli_airline AS max_delay  FROM flights WHERE user_id = ${userID} ORDER BY fli_delay DESC LIMIT 1;
   `;
 
@@ -100,12 +100,11 @@ LIMIT 5
 `;
 
   const mostFrequentDestinationAirportSQL = `
-SELECT fli_arr_air_icao,fli_arr_air_iata  AS count 
+SELECT fli_arr_air_icao, fli_arr_air_iata, count(*)  AS count 
 FROM flights 
-WHERE user_id = ${userID} 
-GROUP BY fli_dest_air_icao 
+WHERE user_id = ${userID}
+GROUP BY fli_arr_air_icao 
 ORDER BY count DESC 
-LIMIT 1;
 `;
 
   const airlineWithLeastDelaySQL = `

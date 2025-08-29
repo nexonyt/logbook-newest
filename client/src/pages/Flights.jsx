@@ -3,7 +3,7 @@ import NavBar from "../components/Navbar"; // Assuming NavBar is a separate comp
 import axios from "axios";
 import moment from "moment";
 import styled, { keyframes } from "styled-components";
-
+import { Plane, Clock, CheckCircle, MapPin, Calendar } from "lucide-react";
 // --- Styled Components ---
 
 const MainDiv = styled.div`
@@ -67,60 +67,7 @@ const FlightsList = styled.div`
 `;
 
 // Karta lotu
-const FlightCard = styled.div`
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 1rem; /* odstęp między kartami */
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  }
-`;
-
-// Powiększony kierunek na górze
-const FlightDirection = styled.div`
-  font-size: 1.8rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #2c3e50;
-`;
-
-const CardHeader = styled.h3`
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: #34495e;
-  font-size: 1.4rem;
-  text-align: center;
-  word-break: break-word;
-  line-height: 1.3;
-`;
-
-const InfoItem = styled.p`
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-  color: #555;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  line-height: 1.4;
-
-  strong {
-    color: #333;
-    min-width: 110px;
-    margin-right: 0.8rem;
-    flex-shrink: 0;
-  }
-`;
 
 // Separator między kartami (linia ---)
 const Separator = styled.div`
@@ -142,6 +89,83 @@ const MessageContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-top: 2rem;
 `;
+
+
+//Nowe style
+
+const FlightCardHeader = styled.div`
+  display: flex;
+  width: 80%;
+  justify-content: space-between;
+  align-items: center;
+`
+export const FlightCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const FlightCardDetailsColumn = styled.div`
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const FlightCardDetailsInformation = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+`;
+const FlightCardDetails = styled.div`
+  width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  padding: 16px 0;
+`;
+
+export const Divider = styled.hr`
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+`;
+
+export const FlightDirection = styled.div`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+`;
+
+export const CardHeader = styled.div`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+`;
+
+export const InfoItem = styled.div`
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 6px;
+
+  strong {
+    color: #111;
+  }
+`;
+
+
 
 // --- Flights Component ---
 
@@ -195,6 +219,41 @@ export default function Flights() {
             {flights.map((flight, index) => (
               <React.Fragment key={flight.fli_number}>
                 <FlightCard>
+                  <FlightCardHeader>
+                    <h2>{flight.fli_dest_air_icao}/{flight.fli_dest_air_iata} → {flight.fli_arr_air_icao}/{flight.fli_arr_air_iata}</h2>
+                    <p>{flight.fli_number} - {flight.fli_airline}</p>
+                  </FlightCardHeader>
+
+                  <Divider />
+
+                  <FlightCardDetails>
+                    <FlightCardDetailsColumn>
+                      <FlightCardDetailsInformation>
+                        <Plane size={16} /> Linia lotnicza: {flight.fli_airline}
+                      </FlightCardDetailsInformation>
+                      <FlightCardDetailsInformation>
+                        <MapPin size={16} /> Numer lotu: {flight.fli_number}
+                      </FlightCardDetailsInformation>
+                      <FlightCardDetailsInformation>
+                        <Clock size={16} /> Czas trwania: {flight.fli_duration}
+                      </FlightCardDetailsInformation>
+                    </FlightCardDetailsColumn>
+
+                    <FlightCardDetailsColumn>
+                      <FlightCardDetailsInformation>
+                        <Clock size={16} /> Odlot: {flight.fli_dep_time}
+                      </FlightCardDetailsInformation>
+                      <FlightCardDetailsInformation>
+                        <Clock size={16} /> Przylot: {flight.fli_arr_time}
+                      </FlightCardDetailsInformation>
+                      <FlightCardDetailsInformation>
+                        <Calendar size={16} /> Terminal: 1
+                      </FlightCardDetailsInformation>
+                    </FlightCardDetailsColumn>
+                  </FlightCardDetails>
+
+                  {/* 
+
                   <FlightDirection>
                     {flight.fli_dest_air_iata} → {flight.fli_arr_air_iata}
                   </FlightDirection>
@@ -228,9 +287,8 @@ export default function Flights() {
                     <InfoItem>
                       <strong>Notatka:</strong> {flight.notes}
                     </InfoItem>
-                  )}
+                  )}*/}
                 </FlightCard>
-                {index < flights.length - 1 && <Separator>---</Separator>}
               </React.Fragment>
             ))}
           </FlightsList>
