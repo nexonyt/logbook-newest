@@ -80,8 +80,12 @@ const Title = styled.h1`
 export const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   padding: 2rem;
+
+  @media screen and (max-width: 800px) {
+    gap: 0.2rem;
+  }
 `;
 
 // Grid dla podsumowania (3 karty obok siebie)
@@ -89,6 +93,10 @@ export const SummaryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
+
+  @media screen and (max-width: 800px) {
+    gap: 1rem;
+  }
 `;
 
 // Grid dla szczegółowych statystyk (np. 3 kolumny)
@@ -96,6 +104,10 @@ export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
+
+  @media screen and (max-width: 800px) {
+    gap: 1rem;
+  }
 `;
 
 export const StatCard = styled.div`
