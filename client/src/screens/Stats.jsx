@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import NavBar from "../components/Navbar";
-import ContentLoader from "react-content-loader";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress"
 import Box from "@mui/material/Box";
@@ -17,21 +16,8 @@ import {
   AlarmClockOff,
 } from "lucide-react";
 
-const MyCustomLoader = () => (
-  <ContentLoader
-    width="100%"
-    height={80}
-    viewBox="0 0 380 80"
-    backgroundColor="#f3f3f3"
-    foregroundColor="#ecebeb"
-  >
-    <rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
-  </ContentLoader>
-);
-
 
 const MainWrapper = styled.div`
-
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -39,19 +25,14 @@ const MainWrapper = styled.div`
 `;
 
 
-
 const ContentWrapper = styled.div`
-
   flex: 1;
   display: flex;
   flex-direction: column;
   background-color: #fafafa;
 `;
 
-
-
 const FlightsContent = styled.div`
-
   display: block;
   width: 100%;
   min-height: 100vh;
@@ -76,7 +57,6 @@ const Title = styled.h1`
   text-align: center;
 `;
 
-
 export const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -88,7 +68,6 @@ export const DashboardContainer = styled.div`
   }
 `;
 
-// Grid dla podsumowania (3 karty obok siebie)
 export const SummaryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -99,7 +78,6 @@ export const SummaryGrid = styled.div`
   }
 `;
 
-// Grid dla szczegółowych statystyk (np. 3 kolumny)
 export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -173,7 +151,7 @@ export default function Stats() {
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
         const data = await res.json();
 
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         setStats(data);
       } catch (err) {
@@ -186,7 +164,6 @@ export default function Stats() {
   }, []);
 
   function formatDate(delay) {
-    // zakładamy, że delay jest stringiem "H:MM"
     const [hours, minutes] = delay.split(":");
     return `${hours}h ${minutes}m`;
   }

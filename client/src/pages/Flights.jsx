@@ -4,6 +4,7 @@ import axios from "axios";
 import moment from "moment";
 import styled, { keyframes } from "styled-components";
 import { Plane, Clock, CheckCircle, MapPin, Calendar } from "lucide-react";
+import FadeIn from "react-fade-in";
 // --- Styled Components ---
 
 const MainDiv = styled.div`
@@ -12,17 +13,10 @@ const MainDiv = styled.div`
   min-height: 100vh;
 `;
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
+
 
 const FlightsContent = styled.div`
-  animation: ${fadeIn} 0.3s ease-in-out;
+
   display: flex; 
   justify-content: center;
   align-items: flex-start; 
@@ -218,41 +212,42 @@ export default function Flights() {
           <FlightsList>
             {flights.map((flight, index) => (
               <React.Fragment key={flight.fli_number}>
-                <FlightCard>
-                  <FlightCardHeader>
-                    <h2>{flight.fli_dest_air_icao}/{flight.fli_dest_air_iata} → {flight.fli_arr_air_icao}/{flight.fli_arr_air_iata}</h2>
-                    <p>{flight.fli_number} - {flight.fli_airline}</p>
-                  </FlightCardHeader>
+                <FadeIn>
+                  <FlightCard>
+                    <FlightCardHeader>
+                      <h2>{flight.fli_dest_air_icao}/{flight.fli_dest_air_iata} → {flight.fli_arr_air_icao}/{flight.fli_arr_air_iata}</h2>
+                      <p>{flight.fli_number} - {flight.fli_airline}</p>
+                    </FlightCardHeader>
 
-                  <Divider />
+                    <Divider />
 
-                  <FlightCardDetails>
-                    <FlightCardDetailsColumn>
-                      <FlightCardDetailsInformation>
-                        <Plane size={16} /> Linia lotnicza: {flight.fli_airline}
-                      </FlightCardDetailsInformation>
-                      <FlightCardDetailsInformation>
-                        <MapPin size={16} /> Numer lotu: {flight.fli_number}
-                      </FlightCardDetailsInformation>
-                      <FlightCardDetailsInformation>
-                        <Clock size={16} /> Czas trwania: {flight.fli_duration}
-                      </FlightCardDetailsInformation>
-                    </FlightCardDetailsColumn>
+                    <FlightCardDetails>
+                      <FlightCardDetailsColumn>
+                        <FlightCardDetailsInformation>
+                          <Plane size={16} /> Linia lotnicza: {flight.fli_airline}
+                        </FlightCardDetailsInformation>
+                        <FlightCardDetailsInformation>
+                          <MapPin size={16} /> Numer lotu: {flight.fli_number}
+                        </FlightCardDetailsInformation>
+                        <FlightCardDetailsInformation>
+                          <Clock size={16} /> Czas trwania: {flight.fli_duration}
+                        </FlightCardDetailsInformation>
+                      </FlightCardDetailsColumn>
 
-                    <FlightCardDetailsColumn>
-                      <FlightCardDetailsInformation>
-                        <Clock size={16} /> Odlot: {flight.fli_dep_time}
-                      </FlightCardDetailsInformation>
-                      <FlightCardDetailsInformation>
-                        <Clock size={16} /> Przylot: {flight.fli_arr_time}
-                      </FlightCardDetailsInformation>
-                      <FlightCardDetailsInformation>
-                        <Calendar size={16} /> Terminal: 1
-                      </FlightCardDetailsInformation>
-                    </FlightCardDetailsColumn>
-                  </FlightCardDetails>
+                      <FlightCardDetailsColumn>
+                        <FlightCardDetailsInformation>
+                          <Clock size={16} /> Odlot: {flight.fli_dep_time}
+                        </FlightCardDetailsInformation>
+                        <FlightCardDetailsInformation>
+                          <Clock size={16} /> Przylot: {flight.fli_arr_time}
+                        </FlightCardDetailsInformation>
+                        <FlightCardDetailsInformation>
+                          <Calendar size={16} /> Terminal: 1
+                        </FlightCardDetailsInformation>
+                      </FlightCardDetailsColumn>
+                    </FlightCardDetails>
 
-                  {/* 
+                    {/* 
 
                   <FlightDirection>
                     {flight.fli_dest_air_iata} → {flight.fli_arr_air_iata}
@@ -288,11 +283,13 @@ export default function Flights() {
                       <strong>Notatka:</strong> {flight.notes}
                     </InfoItem>
                   )}*/}
-                </FlightCard>
+                  </FlightCard>
+                </FadeIn>
               </React.Fragment>
             ))}
           </FlightsList>
         )}
+
       </FlightsContent>
     </MainDiv>
   );

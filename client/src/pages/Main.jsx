@@ -1,19 +1,19 @@
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
-import { toast } from "react-toastify";
-import { useAuth } from "../hooks/useAuth";
-import { ButtonLink, DashboardContent } from "../styles";
-
+import { DashboardContent } from "../styles";
+import FadeIn from "react-fade-in";
+import { TicketsPlane,CirclePlus,ChartNoAxesCombined,House } from "lucide-react";
 const MainDiv = styled.div`
   background-color: #fafafa;
   display: flex;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh; 
 `;
+
 export const SummaryGrid = styled.div`
-  display: flex; /* Zmieniamy na flexbox */
-  flex-wrap: nowrap; /* Wymuszamy układanie w jednym rzędzie */
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
 
   @media screen and (max-width: 800px) {
@@ -34,12 +34,23 @@ export const StatCard = styled.div`
 
 const Container = styled.div`
   display: flex;
+  
+  flex-direction: row;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   overflow: hidden;
+  margin: 0rem 3rem;
+
+   @media screen and (max-width: 1500px) {
+    width: 85%;
+  }
+
+  @media screen and (max-width: 1300px) {
+    flex-direction: column;
+  }
 `;
 
 const LeftPanel = styled.div`
@@ -50,18 +61,34 @@ const LeftPanel = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
 
   h1 {
-    font-size: 3em;
+    font-size: 2.5em;
     font-weight: 700;
     margin-bottom: 10px;
   }
 
   p {
-    font-size: 1.2em;
+    font-size: 1.1em;
     color: #cbd5e1;
+  }
+
+    @media screen and (max-width: 1300px) {
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+    }
+
+  @media screen and (max-width: 600px) {
+    padding: 20px;
+
+    h1 {
+      font-size: 1.8em;
+    }
+
+    p {
+      font-size: 1em;
+    }
   }
 `;
 
@@ -70,8 +97,12 @@ const RightPanel = styled.div`
   padding: 40px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
+
+  @media screen and (max-width: 900px) {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
 `;
 
 const NavButton = styled.a`
@@ -79,7 +110,7 @@ const NavButton = styled.a`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 30px;
+  padding: 25px;
   border-radius: 12px;
   background-color: #f7fafc;
   border: 1px solid #e2e8f0;
@@ -103,62 +134,57 @@ const NavButton = styled.a`
     stroke-width: 2;
     stroke: currentColor;
   }
-`;
-const Main = () => {
-  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    toast.warn("You have been logged out");
-  };
+  @media screen and (max-width: 600px) {
+    padding: 15px;
+    font-size: 1em;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      margin-bottom: 10px;
+    }
+  }
+`;
+
+const Main = () => {
 
   return (
     <MainDiv>
-      <Navbar></Navbar>
+      <Navbar />
       <DashboardContent>
+        <FadeIn>
+          <Container>
+            <LeftPanel>
+              <h1>Witaj w logbooku</h1>
+              <p>
+                Dodaj swój ostatni lot lub zajrzyj w statystyki wszystkich twoich lotów!
+              </p>
+            </LeftPanel>
 
-         <Container>
-        <LeftPanel>
-          <h1>Witaj w logbooku</h1>
-          <p>
-            Wybierz jedną z opcji, aby przejść do odpowiedniego panelu i
-            zarządzać swoimi danymi.
-          </p>
-        </LeftPanel>
+            <RightPanel>
+              <NavButton href="#">
+                <House />
+                Panel główny
+              </NavButton>
 
-        <RightPanel>
-          <NavButton href="#">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
-            </svg>
-            Panel główny
-          </NavButton>
+              <NavButton href="flights">
+                <TicketsPlane />
+                Loty
+              </NavButton>
 
-          <NavButton href="flights">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M17 10L12 15L7 10" />
-              <rect x="3" y="1" width="18" height="22" rx="2" />
-            </svg>
-            Loty
-          </NavButton>
+              <NavButton href="add-flight">
+                <CirclePlus />
+                Dodaj lot
+              </NavButton>
 
-          <NavButton href="add-flight">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 5V19" />
-              <path d="M5 12H19" />
-            </svg>
-            Dodaj lot
-          </NavButton>
-
-          <NavButton href="stats">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M3 12h2m-2 0a9 9 0 1018 0 9 9 0 00-18 0zM12 3v2m0 16v2m7-9h2m-2-7h-2.5a4 4 0 00-4 4v2a4 4 0 004 4h2.5m-5 0H5m-2-7v-2" />
-            </svg>
-            Statystyki
-          </NavButton>
-        </RightPanel>
-      </Container>
-
+              <NavButton href="stats">
+                <ChartNoAxesCombined />
+                Statystyki
+              </NavButton>
+            </RightPanel>
+          </Container>
+        </FadeIn>
       </DashboardContent>
     </MainDiv>
   );
