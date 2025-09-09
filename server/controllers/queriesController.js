@@ -63,6 +63,21 @@ const getAllFlights = (req,res) => {
   });
 }
 
+const getUserProfile = (req,res) => {
+    const userID = req.body.userID;
+    const SQL = `SELECT * FROM flights_users WHERE id = ${userID}`
+    db.query(SQL, (err, result) => {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      res.status(500).send('Error retrieving flight data');
+      return;
+    }
+    else {
+      res.json(result[0])
+    }
+  });
+
+}
 
 const getFlightsDurationSum = (req, res) => {
   const userID = req.body.userID;
@@ -228,4 +243,4 @@ LIMIT 1;
 };
 
 
-module.exports = { addFlightQuery, getFlightsDurationSum,getAllFlights };
+module.exports = { addFlightQuery, getFlightsDurationSum,getAllFlights,getUserProfile };

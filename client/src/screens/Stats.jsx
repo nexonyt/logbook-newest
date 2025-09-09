@@ -15,6 +15,7 @@ import {
   MapPinHouse,
   MapPin,
   AlarmClockOff,
+  Globe
 } from "lucide-react";
 
 const MyCustomLoader = () => (
@@ -164,7 +165,7 @@ export default function Stats() {
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
         const data = await res.json();
 
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         setStats(data);
       } catch (err) {

@@ -153,28 +153,51 @@ export default function MyProfile() {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          "https://api-flights.nexonstudio.pl/getflightdurationsum",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userID: 1 }),
-          }
-        );
+
+        // Pobranie tokena
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Brak tokena w localStorage");
+
+        // Dekodowanie payload JWT
+        let payloadBase64 = token.split(".")[1];
+        if (!payloadBase64) throw new Error("Niepoprawny token JWT");
+
+        // Obsługa URL-safe Base64
+        payloadBase64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+        const payloadJSON = atob(payloadBase64);
+        const payload = JSON.parse(payloadJSON);
+
+        console.log("Dekodowany payload:", payload);
+
+        const userID = payload.user_id;
+        if (!userID) throw new Error("Brak userID w tokenie");
+
+        // Fetch danych z prawidłowym userID
+        const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userID }),
+        });
+
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
+
         const data = await res.json();
 
+        // Opcjonalne opóźnienie dla loadera
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
         setStats(data);
       } catch (err) {
+        console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
+
     fetchStats();
   }, []);
+
 
   function formatDate(delay) {
     // zakładamy, że delay jest stringiem "H:MM"
@@ -190,7 +213,7 @@ export default function MyProfile() {
           <FadeIn>
             <MyProfileContainer>
               <h2>Mój profil</h2>
-              
+
             </MyProfileContainer>
           </FadeIn>
         </ContentWrapper>
@@ -218,7 +241,7 @@ export default function MyProfile() {
       <ContentWrapper>
         <MyProfileContainer>
           <h2>Mój profil</h2>
-          
+
         </MyProfileContainer>
       </ContentWrapper>
     </MainWrapper>
