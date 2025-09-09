@@ -5,7 +5,7 @@ import ContentLoader from "react-content-loader";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress"
 import Box from "@mui/material/Box";
-
+import UniqueAirports from "./UniqueAirports";
 import {
   AlertTriangle,
   Hourglass,
@@ -443,6 +443,8 @@ export default function Stats() {
               </FadeIn>
             </StatCard>
           </StatsGrid>
+          <UniqueAirports stats={stats} />
+
         </DashboardContainer>
       </ContentWrapper>
     </MainWrapper>
