@@ -63,6 +63,21 @@ const getAllFlights = (req,res) => {
   });
 }
 
+const getUserProfile = (req,res) => {
+    const userID = req.body.userID;
+    const SQL = `SELECT * FROM flights_users WHERE id = ${userID}`
+    db.query(SQL, (err, result) => {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      res.status(500).send('Error retrieving flight data');
+      return;
+    }
+    else {
+      res.json(result[0])
+    }
+  });
+
+}
 
 const getFlightsDurationSum = (req, res) => {
   const userID = req.body.userID;
@@ -118,8 +133,11 @@ LIMIT 1;
 
   const mostFlightAircraft = `select fli_aircraft AS "aircraft",count(*) AS "number_of_flights"  from flights WHERE user_id = ${userID} GROUP BY fli_aircraft ORDER BY count(*) DESC LIMIT 1;`;
 
+  const uniqueuAirportsSQL = `SELECT fli_dest_air_icao AS airport FROM flights WHERE user_id = ${userID} UNION SELECT fli_arr_air_icao AS airport FROM flights WHERE user_id = ${userID};`
+
+
   let responsesFromDB = {};
-  let queriesRemaining = 8; // Number of queries
+  let queriesRemaining = 9; // Number of queries
 
   const onQueryComplete = () => {
     queriesRemaining--;
@@ -211,8 +229,18 @@ LIMIT 1;
     onQueryComplete();
   });
 
+  
+  db.query(uniqueuAirportsSQL, (err, result) => {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      res.status(500).send('Error retrieving flight data');
+      return;
+    }
+    responsesFromDB["unique_airports"] = result ? result.map(r => r.airport) : null;
+    onQueryComplete();
+  });
 
 };
 
 
-module.exports = { addFlightQuery, getFlightsDurationSum,getAllFlights };
+module.exports = { addFlightQuery, getFlightsDurationSum,getAllFlights,getUserProfile };

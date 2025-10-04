@@ -3,7 +3,8 @@ import { NavBarStyle, StyledLink, NavGroup, LogoutLink, NavGroupForLogout } from
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
 import '../App.css';
-import { FaHome, FaPlane, FaPlusCircle, FaChartBar, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaPlane, FaPlusCircle, FaChartBar, FaSignOutAlt, FaBars, FaTimes  } from 'react-icons/fa';
+import { IoAccessibility } from "react-icons/io5";
 
 export default function NavBar() {
   const { logout } = useAuth();
@@ -36,6 +37,9 @@ export default function NavBar() {
           </StyledLink>
           <StyledLink to="/stats" onClick={() => setIsOpen(false)}>
             <FaChartBar style={{ marginRight: '6px' }} /> Statystyki
+          </StyledLink>
+          <StyledLink to="/my-profile" onClick={() => setIsOpen(false)}>
+            <IoAccessibility style={{ marginRight: '6px' }} /> Mój profil
           </StyledLink>
         </NavGroup>
         <NavGroupForLogout>

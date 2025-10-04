@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import NavBar from "../components/Navbar";
 import FadeIn from "react-fade-in";
-import CircularProgress from "@mui/material/CircularProgress"
+import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-
+import UniqueAirports from "./UniqueAirports";
 import {
   AlertTriangle,
   Hourglass,
@@ -14,7 +14,20 @@ import {
   MapPinHouse,
   MapPin,
   AlarmClockOff,
+  Globe
 } from "lucide-react";
+
+const MyCustomLoader = () => (
+  <ContentLoader
+    width="100%"
+    height={80}
+    viewBox="0 0 380 80"
+    backgroundColor="#f3f3f3"
+    foregroundColor="#ecebeb"
+  >
+    <rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
+  </ContentLoader>
+);
 
 
 const MainWrapper = styled.div`
@@ -23,6 +36,7 @@ const MainWrapper = styled.div`
   width: 100%;
   min-height: 100vh;
 `;
+
 
 
 const ContentWrapper = styled.div`
@@ -183,7 +197,13 @@ export default function Stats() {
                     Całkowity czas lotów
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -193,7 +213,13 @@ export default function Stats() {
                     Najczęściej wybierana linia
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -204,8 +230,13 @@ export default function Stats() {
                   </StatHeader>
                   <Divider />
 
-
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -219,7 +250,13 @@ export default function Stats() {
                     Najczęstsze lotnisko wylotu
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -229,7 +266,13 @@ export default function Stats() {
                     Najczęstszy cel podróży
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -239,7 +282,13 @@ export default function Stats() {
                     Największe opóźnienie lotu
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -249,7 +298,13 @@ export default function Stats() {
                     Najmniej opóźnień
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -259,7 +314,13 @@ export default function Stats() {
                     Najwięcej latałeś samolotem
                   </StatHeader>
                   <Divider />
-                  <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%"
+                  >
                     <CircularProgress color="inherit" />
                   </Box>
                 </StatCard>
@@ -289,7 +350,6 @@ export default function Stats() {
     <MainWrapper>
       <NavBar />
       <ContentWrapper>
-
         <DashboardContainer>
           <h2>Podsumowanie</h2>
           <SummaryGrid>
@@ -315,7 +375,9 @@ export default function Stats() {
               </StatHeader>
               <Divider />
               <FadeIn>
-                <StatValue>{stats.most_chosen_airline[0].fli_airline}</StatValue>
+                <StatValue>
+                  {stats.most_chosen_airline[0].fli_airline}
+                </StatValue>
                 <StatSubtext>
                   Leciałeś tą linią ponad{" "}
                   <BoldedText>{stats.most_chosen_airline[0].count}</BoldedText>{" "}
@@ -333,7 +395,16 @@ export default function Stats() {
                 <StatValue>
                   {formatDate(stats.longest_flight[0].max_duration)}
                 </StatValue>
-                <StatSubtext>Na trasie <BoldedText>{stats.longest_flight[0].fli_dest_air_icao}/{stats.longest_flight[0].fli_dest_air_iata} - {stats.longest_flight[0].fli_arr_air_icao}/{stats.longest_flight[0].fli_arr_air_iata}</BoldedText> linią {stats.longest_flight[0].fli_airline}</StatSubtext>
+                <StatSubtext>
+                  Na trasie{" "}
+                  <BoldedText>
+                    {stats.longest_flight[0].fli_dest_air_icao}/
+                    {stats.longest_flight[0].fli_dest_air_iata} -{" "}
+                    {stats.longest_flight[0].fli_arr_air_icao}/
+                    {stats.longest_flight[0].fli_arr_air_iata}
+                  </BoldedText>{" "}
+                  linią {stats.longest_flight[0].fli_airline}
+                </StatSubtext>
               </FadeIn>
             </StatCard>
           </SummaryGrid>
@@ -400,7 +471,9 @@ export default function Stats() {
               </StatHeader>
               <Divider />
               <FadeIn>
-                <StatValue>{stats.least_delay_airline[0].fli_airline}</StatValue>
+                <StatValue>
+                  {stats.least_delay_airline[0].fli_airline}
+                </StatValue>
                 <StatSubtext>
                   {stats.least_delay_airline[0].avg_delay}h
                 </StatSubtext>
@@ -420,7 +493,6 @@ export default function Stats() {
               </FadeIn>
             </StatCard>
           </StatsGrid>
-          
         </DashboardContainer>
       </ContentWrapper>
     </MainWrapper>
