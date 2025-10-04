@@ -14,21 +14,20 @@ import {
   MapPinHouse,
   MapPin,
   AlarmClockOff,
-  Globe
+  Globe,
 } from "lucide-react";
 
-const MyCustomLoader = () => (
-  <ContentLoader
-    width="100%"
-    height={80}
-    viewBox="0 0 380 80"
-    backgroundColor="#f3f3f3"
-    foregroundColor="#ecebeb"
-  >
-    <rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
-  </ContentLoader>
-);
-
+// const MyCustomLoader = () => (
+//   <ContentLoader
+//     width="100%"
+//     height={80}
+//     viewBox="0 0 380 80"
+//     backgroundColor="#f3f3f3"
+//     foregroundColor="#ecebeb"
+//   >
+//     <rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
+//   </ContentLoader>
+// );
 
 const MainWrapper = styled.div`
   display: flex;
@@ -36,8 +35,6 @@ const MainWrapper = styled.div`
   width: 100%;
   min-height: 100vh;
 `;
-
-
 
 const ContentWrapper = styled.div`
   flex: 1;
@@ -493,6 +490,9 @@ export default function Stats() {
               </FadeIn>
             </StatCard>
           </StatsGrid>
+          <FadeIn>
+            <UniqueAirports stats={stats} />
+          </FadeIn>
         </DashboardContainer>
       </ContentWrapper>
     </MainWrapper>
