@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import NavBar from "../components/Navbar";
-import ContentLoader from "react-content-loader";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
@@ -30,12 +29,15 @@ const MyCustomLoader = () => (
   </ContentLoader>
 );
 
+
 const MainWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   min-height: 100vh;
 `;
+
+
 
 const ContentWrapper = styled.div`
   flex: 1;
@@ -80,7 +82,6 @@ export const DashboardContainer = styled.div`
   }
 `;
 
-// Grid dla podsumowania (3 karty obok siebie)
 export const SummaryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -91,7 +92,6 @@ export const SummaryGrid = styled.div`
   }
 `;
 
-// Grid dla szczegółowych statystyk (np. 3 kolumny)
 export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -178,7 +178,6 @@ export default function Stats() {
   }, []);
 
   function formatDate(delay) {
-    // zakładamy, że delay jest stringiem "H:MM"
     const [hours, minutes] = delay.split(":");
     return `${hours}h ${minutes}m`;
   }
@@ -494,9 +493,6 @@ export default function Stats() {
               </FadeIn>
             </StatCard>
           </StatsGrid>
-          <FadeIn>
-            <UniqueAirports stats={stats} />
-          </FadeIn>
         </DashboardContainer>
       </ContentWrapper>
     </MainWrapper>
