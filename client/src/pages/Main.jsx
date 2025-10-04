@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Navbar from "../components/Navbar";
 import { DashboardContent } from "../styles";
 import FadeIn from "react-fade-in";
-import { TicketsPlane,CirclePlus,ChartNoAxesCombined,House } from "lucide-react";
+import { TicketsPlane,CirclePlus,ChartNoAxesCombined,CircleUserRound } from "lucide-react";
 const MainDiv = styled.div`
   background-color: #fafafa;
   display: flex;
@@ -163,9 +163,9 @@ const Main = () => {
             </LeftPanel>
 
             <RightPanel>
-              <NavButton href="#">
-                <House />
-                Panel główny
+              <NavButton href="my-profile">
+                <CircleUserRound />
+                Mój Profil
               </NavButton>
 
               <NavButton href="flights">

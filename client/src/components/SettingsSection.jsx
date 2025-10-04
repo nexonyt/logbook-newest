@@ -152,8 +152,6 @@ const SettingsSection = () => {
 
   return (
     <Section>
-      <SectionTitle>Ustawienia i bezpieczeństwo</SectionTitle>
-
       <ActionButton onClick={() => setModal("profile")}>
         <ActionContent>
           <IconWrapper>
