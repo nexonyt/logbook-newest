@@ -350,8 +350,8 @@ function getBaseAirport(icao) {
         if (!userID) throw new Error("Brak userID w tokenie");
 
         // Fetch danych z prawidłowym userID
-        //  const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
-        const res = await fetch("http://localhost:4040/get-user-profile", {
+         const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
+        // const res = await fetch("http://localhost:4040/get-user-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userID }),
