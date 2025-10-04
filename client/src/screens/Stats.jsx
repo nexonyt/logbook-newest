@@ -420,6 +420,7 @@ export default function Stats() {
               </FadeIn>
             </StatCard>
           </StatsGrid>
+          
         </DashboardContainer>
       </ContentWrapper>
     </MainWrapper>

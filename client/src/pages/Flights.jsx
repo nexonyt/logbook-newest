@@ -5,6 +5,7 @@ import moment from "moment";
 import styled, { keyframes } from "styled-components";
 import { Plane, Clock, CheckCircle, MapPin, Calendar } from "lucide-react";
 import FadeIn from "react-fade-in";
+import FlightMap from "../screens/FlightMap";
 // --- Styled Components ---
 
 const MainDiv = styled.div`
@@ -290,6 +291,7 @@ export default function Flights() {
           </FlightsList>
         )}
 
+<FlightMap flights={flights} />
       </FlightsContent>
     </MainDiv>
   );
