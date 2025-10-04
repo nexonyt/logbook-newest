@@ -8,6 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Plane, Clock, Calendar, MapPin } from "lucide-react";
 import Box from "@mui/material/Box";
 import UniqueAirports from "./UniqueAirports";
+import airportsData from "../data/airports.json";
 
 const MyCustomLoader = () => (
   <ContentLoader
@@ -315,6 +316,18 @@ export default function MyProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+function getBaseAirport(icao) {
+  if (!icao) return null;
+
+  const airport = airportsData[icao];
+  if (!airport) return `${icao} - Nieznane lotnisko`;
+
+  const iata = airport.iata || "brak IATA";
+  const name = airport.name || "Nieznana nazwa";
+
+  return `${airport.icao}/${iata} (${name})`;
+}
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -429,10 +442,10 @@ export default function MyProfile() {
                 <UserName>
                   {profile.surname} {profile.name}
                 </UserName>
-                <UserDetails>ATPL(A) | ID: {userData.atplId}</UserDetails>
+                <UserDetails>{profile.role}</UserDetails>
                 <HomeBase>
                   <MapPin size={18} />
-                  Baza domowa: {userData.homeBase}
+                  Baza domowa: {getBaseAirport(profile.home_airport_icao)}
                 </HomeBase>
               </ProfileInfo>
             </ProfileCard>
