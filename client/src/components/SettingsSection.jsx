@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { KeyRound, Database, MailPlus, X } from "lucide-react";
 import { Icon } from "./Icon"; // Twój komponent ikon
 import { EditProfileForm } from "./EditProfileForm";
-
+import { ChangePasswordForm } from "./ChangePasswordForm";
+import { Modal } from "@mui/material";
+import { ContactForm } from "./ContactForm";
 // Styled-components
 const Section = styled.section`
-  margin-top: 2rem;
+  margin-top: 0.5rem;
 `;
 
 const SectionTitle = styled.h2`
@@ -21,6 +24,7 @@ const ActionButton = styled.button`
   justify-content: space-between;
   width: 100%;
   padding: 1rem;
+  margin-bottom: 1rem;
   background-color: #fff;
   border: 1px solid #e2e8f0; // slate-100
   border-radius: 1rem;
@@ -39,11 +43,11 @@ const ActionContent = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  background-color: #e0f2fe; // sky-100
-  color: #0ea5e9; // sky-600
+  /* background-color: #e0f2fe; // sky-100 */
+  /* color: #0ea5e9; // sky-600 */
   padding: 0.75rem;
   border-radius: 9999px;
-  margin-right: 1rem;
+  /* margin-right: 1rem; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,7 +55,9 @@ const IconWrapper = styled.div`
 
 const ActionText = styled.div`
   text-align: left;
-
+  p {
+    margin: 0.3rem;
+  }
   p:first-child {
     font-weight: 600;
     color: #1e293b; // slate-800
@@ -88,12 +94,12 @@ const ModalWrapper = styled.div`
 
 const ModalContent = styled.div`
   background: #fff;
-  border-radius: 2rem;
+  border-radius: 0.5rem;
   width: 100%;
   max-width: 32rem;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 0.5rem 2rem;
 `;
 
 const ModalHeader = styled.div`
@@ -101,8 +107,8 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+  /* padding-bottom: 1rem; */
+  /* margin-bottom: 1rem; */
 `;
 
 const ModalTitle = styled.h3`
@@ -113,13 +119,14 @@ const ModalTitle = styled.h3`
 
 const CloseButton = styled.button`
   padding: 0.5rem;
-  border-radius: 9999px;
-  color: #64748b;
+  /* border-radius: 9999px; */
+  /* color: #64748b; */
   background: transparent;
   transition: 0.2s;
+
   &:hover {
     background: #f1f5f9;
-    color: #0ea5e9;
+    color: #404040;
   }
 `;
 
@@ -130,7 +137,7 @@ const GenericModal = ({ title, children, onClose }) => (
       <ModalHeader>
         <ModalTitle>{title}</ModalTitle>
         <CloseButton onClick={onClose}>
-          <Icon name="x" className="w-6 h-6" />
+          <X />
         </CloseButton>
       </ModalHeader>
       {children}
@@ -142,7 +149,7 @@ const GenericModal = ({ title, children, onClose }) => (
 const SettingsSection = () => {
   const [modal, setModal] = useState(null); // null | 'profile' | 'password' | 'subscription'
 
-    // Dodaj stan dla profilu
+  // Dodaj stan dla profilu
   const [profile, setProfile] = useState({
     name: "Jan Kowalski",
     license: "ABC123",
@@ -155,7 +162,7 @@ const SettingsSection = () => {
       <ActionButton onClick={() => setModal("profile")}>
         <ActionContent>
           <IconWrapper>
-            <Icon name="user" className="w-6 h-6" />
+            <Database />
           </IconWrapper>
           <ActionText>
             <p>Edytuj dane profilowe</p>
@@ -168,7 +175,7 @@ const SettingsSection = () => {
       <ActionButton onClick={() => setModal("password")}>
         <ActionContent>
           <IconWrapper>
-            <Icon name="key" className="w-6 h-6" />
+            <KeyRound />
           </IconWrapper>
           <ActionText>
             <p>Zmień hasło</p>
@@ -178,14 +185,14 @@ const SettingsSection = () => {
         <ArrowIcon name="arrow-right" />
       </ActionButton>
 
-      <ActionButton onClick={() => setModal("subscription")}>
+      <ActionButton onClick={() => setModal("contact")}>
         <ActionContent>
           <IconWrapper>
-            <Icon name="settings" className="w-6 h-6" />
+            <MailPlus />
           </IconWrapper>
           <ActionText>
-            <p>Zarządzaj subskrypcją</p>
-            <p>Przejrzyj swój plan, faktury i opcje płatności.</p>
+            <p>Kontakt z administratorem</p>
+            <p>Formularz kontaktowy w przypadku problemów z aplikacją</p>
           </ActionText>
         </ActionContent>
         <ArrowIcon name="arrow-right" />
@@ -209,18 +216,32 @@ const SettingsSection = () => {
 
       {modal === "password" && (
         <GenericModal title="Zmień hasło" onClose={() => setModal(null)}>
-          <p>Tu wstaw formularz zmiany hasła</p>
+          <ChangePasswordForm
+            onSave={(data) => {
+              console.log("Nowe dane hasła:", data);
+              // tutaj możesz dodać wywołanie API do backendu
+              setModal(null);
+            }}
+          />
         </GenericModal>
       )}
 
-      {modal === "subscription" && (
-        <GenericModal
-          title="Zarządzaj subskrypcją"
-          onClose={() => setModal(null)}
-        >
-          <p>Tu wstaw formularz zarządzania subskrypcją</p>
-        </GenericModal>
-      )}
+{modal === "contact" && (
+  <GenericModal
+    title="Kontakt z administratorem"
+    onClose={() => setModal(null)}
+  >
+    <ContactForm
+      onSubmit={(data) => {
+        console.log("Wysłano:", data);
+        // tutaj możesz dodać np. wysyłkę wiadomości do backendu
+        setModal(null);
+      }}
+      onCancel={() => setModal(null)}
+    />
+  </GenericModal>
+)}
+
     </Section>
   );
 };

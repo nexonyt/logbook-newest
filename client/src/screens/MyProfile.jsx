@@ -227,7 +227,7 @@ const SectionTitle = styled.h3`
   font-size: 1.75rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin: 1rem 0 0 0;
+  margin: 0.5rem 0 0 0;
 `;
 
 const StatsGrid = styled.div`
@@ -346,8 +346,8 @@ export default function MyProfile() {
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-        //  const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
-        const res = await fetch("http://localhost:4040/get-user-profile", {
+         const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
+        // const res = await fetch("http://localhost:4040/get-user-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userID }),
@@ -356,7 +356,7 @@ export default function MyProfile() {
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
         const data = await res.json();
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         setProfile(data);
       } catch (err) {
