@@ -1,3 +1,11 @@
+import {
+  AlertTriangle,
+  Hourglass,
+  Ticket,
+  MapPinHouse,
+  AlarmClockOff,
+  Globe,
+} from "lucide-react";
 import SettingsSection from "../components/SettingsSection";
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -94,16 +102,16 @@ export const SummaryGrid = styled.div`
 //   }
 // `;
 
-// export const StatCard = styled.div`
-//   background: #fff;
-//   border-radius: 16px;
-//   padding: 1.5rem;
-//   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
-//   display: flex;
-//   flex-direction: column;
-//   align-items: flex-start;
-//   min-height: 150px;
-// `;
+export const StatCard = styled.div`
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 150px;
+`;
 
 const MyProfileContainer = styled.div`
   display: flex;
@@ -233,21 +241,21 @@ const StatsGrid = styled.div`
   }
 `;
 
-const StatCard = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+// const StatCard = styled.div`
+//   background: white;
+//   border-radius: 16px;
+//   padding: 2rem;
+//   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+//   display: flex;
+//   /* flex-direction: column; */
+//   gap: 1rem;
+//   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  }
-`;
+//   &:hover {
+//     transform: translateY(-4px);
+//     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+//   }
+// `;
 
 export const StatHeader = styled.div`
   display: flex;
@@ -306,63 +314,49 @@ const StatLabel = styled.div`
   margin-top: -0.5rem;
 `;
 
-// const StatSubtext = styled.div`
-//   font-size: 0.875rem;
-//   color: #9ca3af;
-// `;
-
 export default function MyProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-function getBaseAirport(icao) {
-  if (!icao) return null;
+  function getBaseAirport(icao) {
+    if (!icao) return null;
 
-  const airport = airportsData[icao];
-  if (!airport) return `${icao} - Nieznane lotnisko`;
+    const airport = airportsData[icao];
+    if (!airport) return `${icao} - Nieznane lotnisko`;
 
-  const iata = airport.iata || "brak IATA";
-  const name = airport.name || "Nieznana nazwa";
+    const iata = airport.iata || "brak IATA";
+    const name = airport.name || "Nieznana nazwa";
 
-  return `${airport.icao}/${iata} (${name})`;
-}
+    return `${airport.icao}/${iata} (${name})`;
+  }
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
 
-        // Pobranie tokena
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Brak tokena w localStorage");
-
-        // Dekodowanie payload JWT
         let payloadBase64 = token.split(".")[1];
         if (!payloadBase64) throw new Error("Niepoprawny token JWT");
-
-        // Obsługa URL-safe Base64
         payloadBase64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
         const payloadJSON = atob(payloadBase64);
         const payload = JSON.parse(payloadJSON);
-
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-        // Fetch danych z prawidłowym userID
-         const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
-        // const res = await fetch("http://localhost:4040/get-user-profile", {
+        //  const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
+        const res = await fetch("http://localhost:4040/get-user-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userID }),
         });
 
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
-
         const data = await res.json();
 
-        // Opcjonalne opóźnienie dla loadera
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         setProfile(data);
       } catch (err) {
@@ -376,22 +370,20 @@ function getBaseAirport(icao) {
     fetchStats();
   }, []);
 
-  const userData = {
-    firstName: "Anna",
-    lastName: "Kowalska",
-    atplId: "PL123456",
-    homeBase: "EPWA - Lotnisko Chopina w Warszawie",
-    totalFlights: profile?.totalFlights || 452,
-    totalHours: profile?.totalHours || 1258.4,
-    lastFlight: profile?.lastFlightDate || "2024-10-01",
-  };
+  function formatToYYYYMMDD(iso, { useUtc = true } = {}) {
+    if (!iso && iso !== 0) return null;
+    const date = iso instanceof Date ? iso : new Date(iso);
+    if (Number.isNaN(date.getTime())) return null;
+    const year = useUtc ? date.getUTCFullYear() : date.getFullYear();
+    const month = (useUtc ? date.getUTCMonth() : date.getMonth()) + 1;
+    const day = useUtc ? date.getUTCDate() : date.getDate();
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+
+    return `${year}-${mm}-${dd}`;
+  }
 
   const initials = `${profile?.surname[0]}${profile?.name[0]}`;
-
-  function formatDate(delay) {
-    const [hours, minutes] = delay.split(":");
-    return `${hours}h ${minutes}m`;
-  }
 
   if (loading)
     return (
@@ -453,33 +445,41 @@ function getBaseAirport(icao) {
 
             <StatsGrid>
               <StatCard>
-                <StatIcon color="#dbeafe" iconColor="#2563eb">
-                  <Plane size={24} />
-                </StatIcon>
-                <StatValue>{userData.totalFlights}</StatValue>
-                <StatLabel>Łącznie lotów</StatLabel>
-                <StatSubtext>Loty</StatSubtext>
+                <StatHeader>
+                  <Ticket size={18} />
+                  Ilość odbytych lotów
+                </StatHeader>
+                <Divider />
+                <FadeIn>
+                  <StatValue>{profile?.flights_number} lotów</StatValue>
+                  <StatSubtext>Tyle lotów odbyłeś do tej pory</StatSubtext>
+                </FadeIn>
               </StatCard>
 
-              <StatCard>
-                <StatIcon color="#dbeafe" iconColor="#2563eb">
-                  <Clock size={24} />
-                </StatIcon>
-                <StatValue>{userData.totalHours}</StatValue>
-                <StatLabel>Łącznie godzin</StatLabel>
-                <StatSubtext>Godzin nalotu</StatSubtext>
+                 <StatCard>
+                <StatHeader>
+                  <Ticket size={18} />
+                  Czas spędzony w powietrzu
+                </StatHeader>
+                <Divider />
+                <FadeIn>
+                  <StatValue>{profile?.total_hours}</StatValue>
+                  <StatSubtext>Ilość godzin które łącznie spędziłeś w powietrzu</StatSubtext>
+                </FadeIn>
               </StatCard>
 
-              <StatCard>
-                <StatIcon color="#dbeafe" iconColor="#2563eb">
-                  <Calendar size={24} />
-                </StatIcon>
-                <StatValue>{userData.lastFlight}</StatValue>
-                <StatLabel>Ostatni lot</StatLabel>
-                <StatSubtext>Data</StatSubtext>
+          <StatCard>
+                <StatHeader>
+                  <Ticket size={18} />
+                  Ostatni lot
+                </StatHeader>
+                <Divider />
+                <FadeIn>
+                  <StatValue>{formatToYYYYMMDD(profile?.last_flight)}</StatValue>
+                  <StatSubtext>To właśnie tego dnia ostatni raz leciałeś samolotem</StatSubtext>
+                </FadeIn>
               </StatCard>
             </StatsGrid>
-            
             <SectionTitle>Ustawienia i bezpieczeństwo</SectionTitle>
             <SettingsSection />
           </MyProfileContainer>

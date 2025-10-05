@@ -65,7 +65,7 @@ const getAllFlights = (req,res) => {
 
 const getUserProfile = (req,res) => {
     const userID = req.body.userID;
-    const SQL = `SELECT * FROM flights_users WHERE id = ${userID}`
+    const SQL = `SELECT id, name, surname, date_of_birth, is_admin, last_login, role, home_airport_icao, (SELECT count(*) FROM flights WHERE user_id = 1) AS flights_number, (SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = 1) AS total_hours, (SELECT DATE(fli_dep_time) AS last_flight_date FROM flights WHERE user_id = 1 ORDER BY fli_dep_time DESC  LIMIT 1) AS last_flight FROM flights_users WHERE id = 1;`
     db.query(SQL, (err, result) => {
     if (err) {
       console.error('error connecting: ' + err.stack);
