@@ -5,7 +5,7 @@ import axios from "axios";
 import NavBar from "../components/Navbar";
 import AirportSearchInput from "../components/AirportSearchInput";
 import airports from "../data/airports.json";
-import { Plane, Calendar, Clock, MapPin, Armchair, Info } from "lucide-react";
+import { Plane, Calendar, MapPin, Info } from "lucide-react";
 
 const initialPreFlightData = {
   userID: 0,
