@@ -151,12 +151,22 @@ export default function Stats() {
     const fetchStats = async () => {
       try {
         setLoading(true);
+
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Brak tokena w localStorage");
+        let payloadBase64 = token.split(".")[1];
+        if (!payloadBase64) throw new Error("Niepoprawny token JWT");
+        payloadBase64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+        const payload = JSON.parse(atob(payloadBase64));
+        const userID = payload.user_id;
+        if (!userID) throw new Error("Brak userID w tokenie");
+
         const res = await fetch(
-          "https://api-flights.nexonstudio.pl/getflightdurationsum",
+          "http://localhost:4040/getflightdurationsum",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userID: 1 }),
+            body: JSON.stringify({ userID }),
           }
         );
         if (!res.ok) throw new Error("Błąd w pobieraniu danych");
@@ -175,8 +185,11 @@ export default function Stats() {
   }, []);
 
   function formatDate(delay) {
-    const [hours, minutes] = delay.split(":");
-    return `${hours}h ${minutes}m`;
+    if (!delay) return "0h 0m";
+    const parts = delay.split(":");
+    if (parts.length < 2) return delay;
+    const [hours, minutes] = parts;
+    return `${parseInt(hours, 10)}h ${minutes}m`;
   }
 
   if (loading)
@@ -358,10 +371,10 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {stats.sum_time_of_flights[0].total_duration}
+                  {stats.sum_time_of_flights?.[0]?.total_duration || "0h 0m"}
                 </StatValue>
                 <StatSubtext>
-                  Tyle czasu swojego życia spędziłęś w samolocie
+                  Tyle czasu swojego życia spędziłeś w samolocie
                 </StatSubtext>
               </FadeIn>
             </StatCard>
@@ -373,11 +386,11 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {stats.most_chosen_airline[0].fli_airline}
+                  {stats.most_chosen_airline?.[0]?.fli_airline || "Brak"}
                 </StatValue>
                 <StatSubtext>
                   Leciałeś tą linią ponad{" "}
-                  <BoldedText>{stats.most_chosen_airline[0].count}</BoldedText>{" "}
+                  <BoldedText>{stats.most_chosen_airline?.[0]?.count || 0}</BoldedText>{" "}
                   razy{" "}
                 </StatSubtext>
               </FadeIn>
@@ -390,17 +403,23 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {formatDate(stats.longest_flight[0].max_duration)}
+                  {formatDate(stats.longest_flight?.[0]?.max_duration)}
                 </StatValue>
                 <StatSubtext>
-                  Na trasie{" "}
-                  <BoldedText>
-                    {stats.longest_flight[0].fli_dest_air_icao}/
-                    {stats.longest_flight[0].fli_dest_air_iata} -{" "}
-                    {stats.longest_flight[0].fli_arr_air_icao}/
-                    {stats.longest_flight[0].fli_arr_air_iata}
-                  </BoldedText>{" "}
-                  linią {stats.longest_flight[0].fli_airline}
+                  {stats.longest_flight?.[0]?.fli_dest_air_icao ? (
+                    <span>
+                      Na trasie{" "}
+                      <BoldedText>
+                        {stats.longest_flight[0].fli_dest_air_icao}/
+                        {stats.longest_flight[0].fli_dest_air_iata} -{" "}
+                        {stats.longest_flight[0].fli_arr_air_icao}/
+                        {stats.longest_flight[0].fli_arr_air_iata}
+                      </BoldedText>{" "}
+                      linią {stats.longest_flight[0].fli_airline}
+                    </span>
+                  ) : (
+                    "Brak danych"
+                  )}
                 </StatSubtext>
               </FadeIn>
             </StatCard>
@@ -415,8 +434,21 @@ export default function Stats() {
               </StatHeader>
               <Divider />
               <FadeIn>
-                <StatValue>EPPO / POZ</StatValue>
-                <StatSubtext>13 lotów</StatSubtext>
+                {stats.most_frequent_departure_airport?.[0] ? (
+                  <>
+                    <StatValue>
+                      {stats.most_frequent_departure_airport[0].fli_dest_air_icao} / {stats.most_frequent_departure_airport[0].fli_dest_air_iata}
+                    </StatValue>
+                    <StatSubtext>
+                      {stats.most_frequent_departure_airport[0].count} lotów
+                    </StatSubtext>
+                  </>
+                ) : (
+                  <>
+                    <StatValue>Brak</StatValue>
+                    <StatSubtext>Brak danych</StatSubtext>
+                  </>
+                )}
               </FadeIn>
             </StatCard>
             <StatCard>
@@ -427,13 +459,14 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {stats.most_frequent_destination[0].fli_arr_air_icao}/
-                  {stats.most_frequent_destination[0].fli_arr_air_iata}
+                  {stats.most_frequent_destination?.[0]
+                    ? `${stats.most_frequent_destination[0].fli_arr_air_icao}/${stats.most_frequent_destination[0].fli_arr_air_iata}`
+                    : "Brak"}
                 </StatValue>
                 <StatSubtext>
                   Poleciałeś do tego miejsca, aż{" "}
                   <BoldedText>
-                    {stats.most_frequent_destination[0].count}
+                    {stats.most_frequent_destination?.[0]?.count || 0}
                   </BoldedText>{" "}
                   razy
                 </StatSubtext>
@@ -447,17 +480,16 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {formatDate(stats.max_delay[0].fli_delay)} -{" "}
-                  {stats.max_delay[0].max_delay}
+                  {stats.max_delay?.[0]
+                    ? `${formatDate(stats.max_delay[0].fli_delay)} - ${stats.max_delay[0].max_delay || ""}`
+                    : "Brak"}
                 </StatValue>
                 <StatSubtext>
-                  {stats.max_delay[0].fli_dest_air_icao +
-                    "/" +
-                    stats.max_delay[0].fli_dest_air_iata}{" "}
-                  -{" "}
-                  {stats.max_delay[0].fli_arr_air_icao +
-                    "/" +
-                    stats.max_delay[0].fli_arr_air_iata}{" "}
+                  {stats.max_delay?.[0] ? (
+                    `${stats.max_delay[0].fli_dest_air_icao || ""}/${stats.max_delay[0].fli_dest_air_iata || ""} - ${stats.max_delay[0].fli_arr_air_icao || ""}/${stats.max_delay[0].fli_arr_air_iata || ""}`
+                  ) : (
+                    "Brak opóźnień"
+                  )}
                 </StatSubtext>
               </FadeIn>
             </StatCard>
@@ -469,10 +501,12 @@ export default function Stats() {
               <Divider />
               <FadeIn>
                 <StatValue>
-                  {stats.least_delay_airline[0].fli_airline}
+                  {stats.least_delay_airline?.[0]?.fli_airline || "Brak"}
                 </StatValue>
                 <StatSubtext>
-                  {stats.least_delay_airline[0].avg_delay}h
+                  {stats.least_delay_airline?.[0]?.avg_delay != null
+                    ? `${stats.least_delay_airline[0].avg_delay}h`
+                    : "Brak danych"}
                 </StatSubtext>
               </FadeIn>
             </StatCard>
@@ -483,9 +517,11 @@ export default function Stats() {
               </StatHeader>
               <Divider />
               <FadeIn>
-                <StatValue>{stats.most_flight_aircraft[0].aircraft}</StatValue>
+                <StatValue>
+                  {stats.most_flight_aircraft?.[0]?.aircraft || "Brak"}
+                </StatValue>
                 <StatSubtext>
-                  {stats.most_flight_aircraft[0].number_of_flights} razy
+                  {stats.most_flight_aircraft?.[0]?.number_of_flights || 0} razy
                 </StatSubtext>
               </FadeIn>
             </StatCard>

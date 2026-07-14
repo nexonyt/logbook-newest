@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
 import NavBar from "../components/Navbar";
 import AirportSearchInput from "../components/AirportSearchInput";
 import airports from "../data/airports.json";
+import { Plane, Calendar, Clock, MapPin, Armchair, Info } from "lucide-react";
 
 const initialPreFlightData = {
   userID: 0,
@@ -14,7 +15,7 @@ const initialPreFlightData = {
   flightDateArrival: "",
   flightTimeArrival: "",
   flightAirline: "",
-  flightDestIATA: "", // Założyłem, że Dest to Odlot według Twojego nazewnictwa w sendData
+  flightDestIATA: "",
   flightDestICAO: "",
   flightArrivalIATA: "",
   flightArrivalICAO: "",
@@ -29,7 +30,27 @@ const initialPreFlightData = {
 export default function AddFlights() {
   const [preFlightData, setPreFlightData] = useState(initialPreFlightData);
 
-  // Uniwersalny handler dla standardowych inputów tekstowych
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        let payloadBase64 = token.split(".")[1];
+        if (payloadBase64) {
+          payloadBase64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+          const payload = JSON.parse(atob(payloadBase64));
+          if (payload.user_id) {
+            setPreFlightData((prev) => ({
+              ...prev,
+              userID: payload.user_id
+            }));
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error decoding token for userID:", e);
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPreFlightData((prev) => ({
@@ -39,6 +60,11 @@ export default function AddFlights() {
   };
 
   const sendData = async () => {
+    if (!preFlightData.flightNumber || !preFlightData.flightAirline) {
+      toast.error("Wpisz przynajmniej numer lotu i linię lotniczą.");
+      return;
+    }
+
     const flightData = {
       userID: preFlightData.userID,
       flightNumber: preFlightData.flightNumber,
@@ -59,10 +85,13 @@ export default function AddFlights() {
 
     try {
       const response = await axios.post("/addflightquery", flightData);
-      // POPRAWKA: Użycie === zamiast =
       if (response.status === 200) {
-        toast.success("Dane zostały pomyślnie zapisane!");
-        setPreFlightData(initialPreFlightData); // Reset formularza
+        toast.success("Lot został pomyślnie zapisany!");
+        // Keep the user ID but reset the rest of the form
+        setPreFlightData((prev) => ({
+          ...initialPreFlightData,
+          userID: prev.userID
+        }));
       }
     } catch (err) {
       const errorMessage = err.response?.data || "Wystąpił błąd podczas zapisu.";
@@ -74,9 +103,13 @@ export default function AddFlights() {
     <MainDiv>
       <NavBar />
       <FlightsContent>
-        <AddFlightsDiv>
-          <HeaderTitle>Uzupełnij dane swojego lotu</HeaderTitle>
+        <FormCard>
+          <FormTitle>Dodaj nowy lot</FormTitle>
+          <FormSubtitle>Uzupełnij poniższy formularz, aby dodać wpis do swojego logbooka</FormSubtitle>
           
+          <SectionHeader>
+            <Plane size={18} /> Informacje ogólne
+          </SectionHeader>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
               <CustomLabel>Numer lotu</CustomLabel>
@@ -85,7 +118,7 @@ export default function AddFlights() {
                 name="flightNumber"
                 value={preFlightData.flightNumber}
                 onChange={handleChange}
-                placeholder="FR 1234"
+                placeholder="np. FR 1234"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
@@ -95,57 +128,14 @@ export default function AddFlights() {
                 name="flightAirline"
                 value={preFlightData.flightAirline}
                 onChange={handleChange}
-                placeholder="Enter Air"
+                placeholder="np. Ryanair"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
-          <AddFlightsDivRow>
-            <DivContainerWithLabel>
-              <CustomLabel>Data odlotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightDateDeparture"
-                value={preFlightData.flightDateDeparture}
-                onChange={handleChange}
-                placeholder="15.07.2024"
-              />
-            </DivContainerWithLabel>
-            <DivContainerWithLabel>
-              <CustomLabel>Godzina odlotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightTimeDeparture"
-                value={preFlightData.flightTimeDeparture}
-                onChange={handleChange}
-                placeholder="17:15"
-              />
-            </DivContainerWithLabel>
-          </AddFlightsDivRow>
-
-          <AddFlightsDivRow>
-            <DivContainerWithLabel>
-              <CustomLabel>Data przylotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightDateArrival"
-                value={preFlightData.flightDateArrival}
-                onChange={handleChange}
-                placeholder="15.07.2024"
-              />
-            </DivContainerWithLabel>
-            <DivContainerWithLabel>
-              <CustomLabel>Godzina przylotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightTimeArrival"
-                value={preFlightData.flightTimeArrival}
-                onChange={handleChange}
-                placeholder="22:45"
-              />
-            </DivContainerWithLabel>
-          </AddFlightsDivRow>
-
+          <SectionHeader>
+            <MapPin size={18} /> Trasa (Lotniska)
+          </SectionHeader>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
               <CustomLabel>Kod ICAO lotniska odlotu</CustomLabel>
@@ -154,7 +144,7 @@ export default function AddFlights() {
                 name="flightDestICAO"
                 value={preFlightData.flightDestICAO}
                 onChange={handleChange}
-                placeholder="EPWA"
+                placeholder="np. EPWA"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
@@ -164,11 +154,10 @@ export default function AddFlights() {
                 name="flightDestIATA"
                 value={preFlightData.flightDestIATA}
                 onChange={handleChange}
-                placeholder="WAW"
+                placeholder="np. WAW"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
-
           <AddFlightsDivRow>
             <DivContainerWithLabel>
               <CustomLabel>Kod ICAO lotniska przylotu</CustomLabel>
@@ -182,7 +171,6 @@ export default function AddFlights() {
             <DivContainerWithLabel>
               <CustomLabel>Kod IATA lotniska przylotu</CustomLabel>
               <AirportSearchInput
-                type="text"
                 placeholder="Wpisz kod IATA lub nazwę lotniska"
                 airports={airports}
                 onChange={(e) => setPreFlightData((prev) => ({ ...prev, flightArrivalIATA: e.target.value }))}
@@ -191,63 +179,80 @@ export default function AddFlights() {
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
+          <SectionHeader>
+            <Calendar size={18} /> Harmonogram i czasy
+          </SectionHeader>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
-              <CustomLabel>Czas lotu</CustomLabel>
+              <CustomLabel>Data odlotu</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="flightDateDeparture"
+                value={preFlightData.flightDateDeparture}
+                onChange={handleChange}
+                placeholder="YYYY-MM-DD (np. 2024-07-15)"
+              />
+            </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Godzina odlotu</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="flightTimeDeparture"
+                value={preFlightData.flightTimeDeparture}
+                onChange={handleChange}
+                placeholder="HH:MM (np. 17:15)"
+              />
+            </DivContainerWithLabel>
+          </AddFlightsDivRow>
+          <AddFlightsDivRow>
+            <DivContainerWithLabel>
+              <CustomLabel>Data przylotu</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="flightDateArrival"
+                value={preFlightData.flightDateArrival}
+                onChange={handleChange}
+                placeholder="YYYY-MM-DD (np. 2024-07-15)"
+              />
+            </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Godzina przylotu</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="flightTimeArrival"
+                value={preFlightData.flightTimeArrival}
+                onChange={handleChange}
+                placeholder="HH:MM (np. 22:45)"
+              />
+            </DivContainerWithLabel>
+          </AddFlightsDivRow>
+          <AddFlightsDivRow>
+            <DivContainerWithLabel>
+              <CustomLabel>Czas trwania lotu</CustomLabel>
               <AddFlightsInput
                 type="text"
                 name="flightDuration"
                 value={preFlightData.flightDuration}
                 onChange={handleChange}
-                placeholder="3:45"
+                placeholder="HH:MM (np. 3:45)"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
-              <CustomLabel>Jakie opóźnienie?</CustomLabel>
+              <CustomLabel>Opóźnienie lotu</CustomLabel>
               <AddFlightsInput
                 type="text"
                 name="fliDelay"
                 value={preFlightData.fliDelay}
                 onChange={handleChange}
-                placeholder="0:30"
+                placeholder="HH:MM (np. 0:30)"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
+          <SectionHeader>
+            <Info size={18} /> Szczegóły samolotu i rejsu
+          </SectionHeader>
           <AddFlightsDivRow>
-            <DivContainerWithLabel>
-              <CustomLabel>Numer miejsca</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="fliSeats"
-                value={preFlightData.fliSeats}
-                onChange={handleChange}
-                placeholder="7A"
-              />
-            </DivContainerWithLabel>
-            <DivContainerWithLabel>
-              <CustomLabel>Rejestracja samolotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="fliAircraft"
-                value={preFlightData.fliAircraft}
-                onChange={handleChange}
-                placeholder="SP-RSX"
-              />
-            </DivContainerWithLabel>
-          </AddFlightsDivRow>
-
-          <AddFlightsDivRow>
-            <DivContainerWithLabel>
-              <CustomLabel>Dodatkowe informacje</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="fliDetails"
-                value={preFlightData.fliDetails}
-                onChange={handleChange}
-                placeholder="Silne turbulencje"
-              />
-            </DivContainerWithLabel>
             <DivContainerWithLabel>
               <CustomLabel>Typ samolotu</CustomLabel>
               <AddFlightsInput
@@ -255,13 +260,48 @@ export default function AddFlights() {
                 name="fliAircraftType"
                 value={preFlightData.fliAircraftType}
                 onChange={handleChange}
-                placeholder="Boeing 737-8AS"
+                placeholder="np. Boeing 737-800"
+              />
+            </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Rejestracja samolotu (Reg)</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="fliAircraft"
+                value={preFlightData.fliAircraft}
+                onChange={handleChange}
+                placeholder="np. SP-RSX"
+              />
+            </DivContainerWithLabel>
+          </AddFlightsDivRow>
+          <AddFlightsDivRow>
+            <DivContainerWithLabel>
+              <CustomLabel>Numer miejsca (Seat)</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="fliSeats"
+                value={preFlightData.fliSeats}
+                onChange={handleChange}
+                placeholder="np. 14F"
+              />
+            </DivContainerWithLabel>
+            <DivContainerWithLabel>
+              <CustomLabel>Dodatkowe uwagi / notatka</CustomLabel>
+              <AddFlightsInput
+                type="text"
+                name="fliDetails"
+                value={preFlightData.fliDetails}
+                onChange={handleChange}
+                placeholder="np. Turbulencje nad Alpami"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
-          <SubmitButton onClick={sendData}>Zapisz lot</SubmitButton>
-        </AddFlightsDiv>
+          <SubmitButton onClick={sendData}>
+            <Plane size={18} style={{ transform: "rotate(45deg)" }} />
+            Zapisz lot w logbooku
+          </SubmitButton>
+        </FormCard>
       </FlightsContent>
     </MainDiv>
   );
@@ -272,143 +312,164 @@ export default function AddFlights() {
 const fadeIn = keyframes`
   from {
     opacity: 0;
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 `;
 
-const HeaderTitle = styled.div`
-  font-size: 24px;
-  margin-top: 45px;
-`;
-
 const MainDiv = styled.div`
-  background-color: white;
+  background-color: #f8fafc;
   display: flex;
-  min-height: 50vw;
+  min-height: 100vh;
 `;
 
 const FlightsContent = styled.div`
-  animation: ${fadeIn} 0.3s ease-in-out;
+  animation: ${fadeIn} 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex; 
   justify-content: center;
-  align-items: center; 
+  align-items: flex-start;
   min-height: 100vh;
-  overflow: auto;
   width: 100%;
   box-sizing: border-box;
+  padding: 3rem 1.5rem;
 `;
 
-const AddFlightsDiv = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 90%;
+const FormCard = styled.div`
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  border: 1px solid #e2e8f0;
+  padding: 3rem;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
-    width: 90%;
+    padding: 1.5rem;
+  }
+`;
+
+const FormTitle = styled.h2`
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  text-align: center;
+`;
+
+const FormSubtitle = styled.p`
+  color: #64748b;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  margin-top: 0;
+`;
+
+const SectionHeader = styled.div`
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 2rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 0.5rem;
+
+  svg {
+    color: #3b82f6;
   }
 `;
 
 const AddFlightsInput = styled.input`
   width: 100%;
-  /* Usunąłem max-width stąd, ponieważ kontrolujemy to już z poziomu DivContainerWithLabel */
-  background-color: #e2e8f0;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
   padding: 0.75rem 1rem;
-  color: #4a5568;
+  color: #1e293b;
+  font-size: 0.95rem;
   box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
 
   &:focus {
+    border-color: #3b82f6;
     background-color: #ffffff;
-    border-color: #a0aec0;
-    outline: none; /* Pozbywa się domyślnej, czarnej ramki przeglądarki przy kliknięciu */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    outline: none;
   }
 
-  @media (max-width: 768px) {
-    margin-bottom: 10px;
+  &::placeholder {
+    color: #94a3b8;
   }
 `;
 
 const AddFlightsDivRow = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
   width: 100%;
 
-  @media (max-width: 800px) {
-    gap: 15px;
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 `;
 
 const CustomLabel = styled.label`
   display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #131218;
-  font-size: 0.75rem;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 `;
 
 const DivContainerWithLabel = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1; 
-  min-width: 250px; 
-  /* Zmniejszamy max-width kontenera z 500px na 300px, 
-     aby idealnie pasował do szerokości inputów i trzymał je w równych kolumnach */
-  max-width: 300px; 
-  margin: 0 10px;
+  width: 100%;
 
-  /* Wymuszamy, aby komponent AirportSearchInput (który prawdopodobnie jest div-em) 
-     oraz wszystkie inputy wewnątrz zajmowały 100% szerokości kontenera */
   & > div {
     width: 100%;
   }
 
   & input {
     width: 100%;
-    box-sizing: border-box; /* Zapobiega rozpychaniu przez padding */
+    box-sizing: border-box;
   }
 `;
 
 const SubmitButton = styled.button`
-  display: inline-block;
-  margin: 3rem 0;
-  border-radius: 0.25rem;
-  background-color: #181818;
-  color: #fafafa;
-  box-shadow: 0 4px 9px -4px rgba(51, 45, 45, 0.7);
-  padding-top: 0.625rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  line-height: 1.25;
-  transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  outline: none;
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 2.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
   &:hover {
-    cursor: pointer;
-    background-color: #525252;
-    box-shadow: 0 8px 9px -4px rgba(51, 45, 45, 0.2), 0 4px 18px 0 rgba(51, 45, 45, 0.1);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
   }
-  &:focus {
-    background-color: #1e3a8a;
-    box-shadow: 0 8px 9px -4px rgba(51, 45, 45, 0.2), 0 4px 18px 0 rgba(51, 45, 45, 0.1);
-  }
+
   &:active {
-    background-color: #1d4ed8;
-    box-shadow: 0 8px 9px -4px rgba(51, 45, 45, 0.2), 0 4px 18px 0 rgba(51, 45, 45, 0.1);
+    transform: translateY(0);
   }
-`;
+`;

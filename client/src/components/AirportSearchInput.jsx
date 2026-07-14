@@ -6,46 +6,60 @@ const AddFlightsInput = styled.input`
   -moz-appearance: none;
   appearance: none;
   display: block;
-  width: 200px;
-  background-color: #e2e8f0;
-  color: #4a5568;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  width: 100%;
+  background-color: #ffffff;
+  color: #1e293b;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
   line-height: 1.25;
   outline: none;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
 
   &:focus {
-    background-color: #ffffff;
-    border-color: #a0aec0;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+
+  &::placeholder {
+    color: #94a3b8;
   }
 `;
 
 const SuggestionsList = styled.ul`
   position: absolute;
-  top: 40px;
+  top: 48px;
   left: 0;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid #e2e8f0;
   background-color: #fff;
-  z-index: 10;
+  z-index: 20;
   list-style: none;
-  margin: 0;
+  margin: 0.25rem 0 0 0;
   padding: 0;
   max-height: 200px;
   overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 `;
 
 const SuggestionItem = styled.li`
-  padding: 8px;
+  padding: 10px 12px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  color: #334155;
+  transition: background-color 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #f8fafc;
+    color: #3b82f6;
   }
 `;
 
@@ -53,6 +67,7 @@ const InputWrapper = styled.div`
   position: relative;
   width: 100%;
 `;
+
 
 const AirportSearchInput = ({ placeholder, onAirportSelect, airports }) => {
   const [query, setQuery] = useState("");

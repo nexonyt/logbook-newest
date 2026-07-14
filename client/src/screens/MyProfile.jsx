@@ -346,8 +346,8 @@ export default function MyProfile() {
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-         const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
-        // const res = await fetch("http://localhost:4040/get-user-profile", {
+        //  const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
+        const res = await fetch("http://localhost:4040/get-user-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userID }),
@@ -456,7 +456,7 @@ export default function MyProfile() {
                 </FadeIn>
               </StatCard>
 
-                 <StatCard>
+              <StatCard>
                 <StatHeader>
                   <Ticket size={18} />
                   Czas spędzony w powietrzu
@@ -468,7 +468,7 @@ export default function MyProfile() {
                 </FadeIn>
               </StatCard>
 
-          <StatCard>
+              <StatCard>
                 <StatHeader>
                   <Ticket size={18} />
                   Ostatni lot

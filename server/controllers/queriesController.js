@@ -47,7 +47,7 @@ const addFlightQuery = (req, res) => {
 };
 
 
-const getAllFlights = (req,res) => {
+const getAllFlights = (req, res) => {
   const userID = req.body.userID;
   const getAllFlightsSQL = `select fli_dest_air_icao,fli_dest_air_iata,fli_arr_air_icao,fli_arr_air_iata,fli_dep_time,fli_arr_time,fli_airline,fli_aircraft,fli_number,fli_duration,notes,fli_seat,fli_delay,fli_aircraft_type from flights where user_id = ${userID} order by fli_dep_time DESC;`
 
@@ -63,10 +63,10 @@ const getAllFlights = (req,res) => {
   });
 }
 
-const getUserProfile = (req,res) => {
-    const userID = req.body.userID;
-    const SQL = `SELECT id, name, surname, date_of_birth, is_admin, last_login, role, home_airport_icao, (SELECT count(*) FROM flights WHERE user_id = 1) AS flights_number, (SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = 1) AS total_hours, (SELECT DATE(fli_dep_time) AS last_flight_date FROM flights WHERE user_id = 1 ORDER BY fli_dep_time DESC  LIMIT 1) AS last_flight FROM flights_users WHERE id = 1;`
-    db.query(SQL, (err, result) => {
+const getUserProfile = (req, res) => {
+  const userID = req.body.userID;
+  const SQL = `SELECT id, name, surname, date_of_birth, is_admin, last_login, role, home_airport_icao, (SELECT count(*) FROM flights WHERE user_id = 1) AS flights_number, (SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = 1) AS total_hours, (SELECT DATE(fli_dep_time) AS last_flight_date FROM flights WHERE user_id = 1 ORDER BY fli_dep_time DESC  LIMIT 1) AS last_flight FROM flights_users WHERE id = 1;`
+  db.query(SQL, (err, result) => {
     if (err) {
       console.error('error connecting: ' + err.stack);
       res.status(500).send('Error retrieving flight data');
@@ -81,14 +81,6 @@ const getUserProfile = (req,res) => {
 
 const getFlightsDurationSum = (req, res) => {
   const userID = req.body.userID;
-
-  db.query(`INSERT INTO nexonstu_master_db.visited (application,date,url,additional) VALUES ('logbook',NOW(),'https://flights.nexonstudio.pl/flights','${userID}');`, (err, result) => {
-    if (err) {
-      console.error('error connecting: ' + err.stack);
-      res.status(500).send('Error retrieving flight data');
-      return;
-    }
-  });
 
 
   const sumTimeOfFlights = `SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = ${userID};`
@@ -229,7 +221,7 @@ LIMIT 1;
     onQueryComplete();
   });
 
-  
+
   db.query(uniqueuAirportsSQL, (err, result) => {
     if (err) {
       console.error('error connecting: ' + err.stack);
@@ -243,4 +235,4 @@ LIMIT 1;
 };
 
 
-module.exports = { addFlightQuery, getFlightsDurationSum,getAllFlights,getUserProfile };
+module.exports = { addFlightQuery, getFlightsDurationSum, getAllFlights, getUserProfile };
