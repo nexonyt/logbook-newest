@@ -54,7 +54,7 @@ const allWorldCountries = (() => {
   
   worldCountries.features.forEach(f => {
     const code = f.properties?.iso_a2 || f.properties?.ISO_A2;
-    const name = f.properties?.name;
+    const name = f.properties?.name || f.properties?.NAME || f.properties?.NAME_LONG || "";
     if (code && name && !seen.has(code)) {
       seen.add(code);
       list.push({ code, name });
@@ -253,7 +253,7 @@ export default function VisitedCountries() {
                             };
                           }}
                           onEachFeature={(feature, layer) => {
-                            const name = feature.properties?.name;
+                            const name = feature.properties?.name || feature.properties?.NAME || feature.properties?.NAME_LONG || "";
                             const code = feature.properties?.iso_a2 || feature.properties?.ISO_A2;
                             const isVisited = code && allVisitedCodes.includes(code);
                             

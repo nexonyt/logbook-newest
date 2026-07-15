@@ -3,7 +3,7 @@ import NavBar from "../components/Navbar";
 import axios from "axios";
 import moment from "moment";
 import styled, { keyframes } from "styled-components";
-import { Plane, Clock, CheckCircle, MapPin, Calendar, Info, X, ArrowLeft, Armchair } from "lucide-react";
+import { Plane, Clock, CheckCircle, MapPin, Calendar, Info, X, ArrowLeft, Armchair, SlidersHorizontal, RefreshCw, Search } from "lucide-react";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 import airports from "../data/airports.json";
@@ -24,9 +24,165 @@ const ArmchairIcon = ({ selected }) => (
 
 export default function Flights() {
   const [flights, setFlights] = useState([]);
+  const [filteredFlights, setFilteredFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFlight, setSelectedFlight] = useState(null);
+
+  // Search & Filter States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [departureFilter, setDepartureFilter] = useState("");
+  const [arrivalFilter, setArrivalFilter] = useState("");
+  const [airlineFilter, setAirlineFilter] = useState("");
+  const [aircraftFilter, setAircraftFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("dateDesc");
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+
+  // Helper functions for filters metadata
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (searchQuery) count++;
+    if (departureFilter) count++;
+    if (arrivalFilter) count++;
+    if (airlineFilter) count++;
+    if (aircraftFilter) count++;
+    if (dateFrom) count++;
+    if (dateTo) count++;
+    if (sortBy !== "dateDesc") count++;
+    return count;
+  };
+
+  const getSortName = (key) => {
+    switch (key) {
+      case "dateAsc": return "Najstarsze pierwsze";
+      case "durationDesc": return "Czas: najdłuższe";
+      case "durationAsc": return "Czas: najkrótsze";
+      case "delayDesc": return "Największe opóźnienie";
+      default: return "Najnowsze pierwsze";
+    }
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setDepartureFilter("");
+    setArrivalFilter("");
+    setAirlineFilter("");
+    setAircraftFilter("");
+    setDateFrom("");
+    setDateTo("");
+    setSortBy("dateDesc");
+  };
+
+  // Sync and Filter logical engine
+  useEffect(() => {
+    let result = [...flights];
+
+    // General text search
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(f => 
+        (f.fli_number && f.fli_number.toLowerCase().includes(q)) ||
+        (f.fli_airline && f.fli_airline.toLowerCase().includes(q)) ||
+        (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
+        (f.fli_aircraft_type && f.fli_aircraft_type.toLowerCase().includes(q)) ||
+        (f.fli_details && f.fli_details.toLowerCase().includes(q))
+      );
+    }
+
+    // Departure Airport
+    if (departureFilter.trim() !== "") {
+      const q = departureFilter.toLowerCase();
+      result = result.filter(f => 
+        (f.fli_dest_air_icao && f.fli_dest_air_icao.toLowerCase().includes(q)) ||
+        (f.fli_dest_air_iata && f.fli_dest_air_iata.toLowerCase().includes(q)) ||
+        (airports[f.fli_dest_air_icao]?.name && airports[f.fli_dest_air_icao].name.toLowerCase().includes(q)) ||
+        (airports[f.fli_dest_air_icao]?.city && airports[f.fli_dest_air_icao].city.toLowerCase().includes(q))
+      );
+    }
+
+    // Arrival Airport
+    if (arrivalFilter.trim() !== "") {
+      const q = arrivalFilter.toLowerCase();
+      result = result.filter(f => 
+        (f.fli_arr_air_icao && f.fli_arr_air_icao.toLowerCase().includes(q)) ||
+        (f.fli_arr_air_iata && f.fli_arr_air_iata.toLowerCase().includes(q)) ||
+        (airports[f.fli_arr_air_icao]?.name && airports[f.fli_arr_air_icao].name.toLowerCase().includes(q)) ||
+        (airports[f.fli_arr_air_icao]?.city && airports[f.fli_arr_air_icao].city.toLowerCase().includes(q))
+      );
+    }
+
+    // Airline
+    if (airlineFilter.trim() !== "") {
+      const q = airlineFilter.toLowerCase();
+      result = result.filter(f => 
+        f.fli_airline && f.fli_airline.toLowerCase().includes(q)
+      );
+    }
+
+    // Aircraft Type/Reg
+    if (aircraftFilter.trim() !== "") {
+      const q = aircraftFilter.toLowerCase();
+      result = result.filter(f => 
+        (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
+        (f.fli_aircraft_type && f.fli_aircraft_type.toLowerCase().includes(q))
+      );
+    }
+
+    // Date From
+    if (dateFrom !== "") {
+      result = result.filter(f => {
+        const depDate = moment(f.fli_dep_time).format("YYYY-MM-DD");
+        return depDate >= dateFrom;
+      });
+    }
+
+    // Date To
+    if (dateTo !== "") {
+      result = result.filter(f => {
+        const depDate = moment(f.fli_dep_time).format("YYYY-MM-DD");
+        return depDate <= dateTo;
+      });
+    }
+
+    // Duration parser to seconds
+    const getDurationSeconds = (durationStr) => {
+      if (!durationStr) return 0;
+      const parts = durationStr.split(":");
+      if (parts.length === 2) {
+        return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60;
+      }
+      return 0;
+    };
+
+    // Delay parser to seconds
+    const getDelaySeconds = (delayStr) => {
+      return getDurationSeconds(delayStr);
+    };
+
+    // Sorting operations
+    result.sort((a, b) => {
+      if (sortBy === "dateDesc") {
+        return new Date(b.fli_dep_time) - new Date(a.fli_dep_time);
+      }
+      if (sortBy === "dateAsc") {
+        return new Date(a.fli_dep_time) - new Date(b.fli_dep_time);
+      }
+      if (sortBy === "durationDesc") {
+        return getDurationSeconds(b.fli_duration) - getDurationSeconds(a.fli_duration);
+      }
+      if (sortBy === "durationAsc") {
+        return getDurationSeconds(a.fli_duration) - getDurationSeconds(b.fli_duration);
+      }
+      if (sortBy === "delayDesc") {
+        return getDelaySeconds(b.fli_delay) - getDelaySeconds(a.fli_delay);
+      }
+      return 0;
+    });
+
+    setFilteredFlights(result);
+  }, [searchQuery, departureFilter, arrivalFilter, airlineFilter, aircraftFilter, dateFrom, dateTo, sortBy, flights]);
 
   useEffect(() => {
     const fetchFlights = async () => {
@@ -336,52 +492,177 @@ export default function Flights() {
 
           {!loading && !error && flights.length > 0 && (
             <FadeIn>
-              <TableContainer>
-                <FlightTable>
-                  <TableHeader>
-                    <tr>
-                      <th>Data</th>
-                      <th>Lot</th>
-                      <th>Trasa</th>
-                      <th>Linia</th>
-                      <th>Samolot</th>
-                      <th>Czas</th>
-                      <th>Szczegóły</th>
-                    </tr>
-                  </TableHeader>
-                  <TableBody>
-                    {flights.map((flight, idx) => (
-                      <tr key={idx}>
-                        <td data-label="Data">
-                          {moment(flight.fli_dep_time).format("YYYY-MM-DD")}
-                        </td>
-                        <td data-label="Lot" style={{ fontWeight: 700 }}>
-                          {flight.fli_number}
-                        </td>
-                        <td data-label="Trasa">
-                          <span style={{ fontWeight: 600 }}>
-                            {flight.fli_dest_air_iata || flight.fli_dest_air_icao}
-                          </span>
-                          <span style={{ color: "#94a3b8", margin: "0 0.4rem" }}>→</span>
-                          <span style={{ fontWeight: 600 }}>
-                            {flight.fli_arr_air_iata || flight.fli_arr_air_icao}
-                          </span>
-                        </td>
-                        <td data-label="Linia">{flight.fli_airline}</td>
-                        <td data-label="Samolot">
-                          {flight.fli_aircraft_type || flight.fli_aircraft || "Brak"}
-                        </td>
-                        <td data-label="Czas">{flight.fli_duration || "0:00"}</td>
-                        <td data-label="Szczegóły">
-                          <ActionButton onClick={() => setSelectedFlight(flight)}>
-                            <Info size={14} /> Zobacz
-                          </ActionButton>
-                        </td>
+              <SearchSectionCard>
+                <MainSearchRow>
+                  <SearchInputWrapper>
+                    <Search size={18} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Wyszukaj lot (numer, linia lotnicza, rejestracja, notatki...)"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </SearchInputWrapper>
+                  <ExpandFiltersButton 
+                    active={isFiltersExpanded} 
+                    onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                  >
+                    <SlidersHorizontal size={16} /> 
+                    {isFiltersExpanded ? "Ukryj filtry" : "Filtry zaawansowane"}
+                  </ExpandFiltersButton>
+                  {(searchQuery || departureFilter || arrivalFilter || airlineFilter || aircraftFilter || dateFrom || dateTo || sortBy !== "dateDesc") && (
+                    <ResetFiltersBtn onClick={handleResetFilters}>
+                      <RefreshCw size={14} /> Reset
+                    </ResetFiltersBtn>
+                  )}
+                </MainSearchRow>
+
+                {isFiltersExpanded && (
+                  <AdvancedFiltersPanel>
+                    <FiltersGrid>
+                      <FilterInputGroup>
+                        <label>Lotnisko odlotu</label>
+                        <input 
+                          type="text"
+                          placeholder="np. EPKK lub Kraków"
+                          value={departureFilter}
+                          onChange={(e) => setDepartureFilter(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup>
+                        <label>Lotnisko przylotu</label>
+                        <input 
+                          type="text"
+                          placeholder="np. EGLL lub Londyn"
+                          value={arrivalFilter}
+                          onChange={(e) => setArrivalFilter(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup>
+                        <label>Linia lotnicza</label>
+                        <input 
+                          type="text"
+                          placeholder="np. LOT, Lufthansa"
+                          value={airlineFilter}
+                          onChange={(e) => setAirlineFilter(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup>
+                        <label>Typ / Reg samolotu</label>
+                        <input 
+                          type="text"
+                          placeholder="np. Boeing, SP-LRA"
+                          value={aircraftFilter}
+                          onChange={(e) => setAircraftFilter(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup>
+                        <label>Data od</label>
+                        <input 
+                          type="date"
+                          value={dateFrom}
+                          onChange={(e) => setDateFrom(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup>
+                        <label>Data do</label>
+                        <input 
+                          type="date"
+                          value={dateTo}
+                          onChange={(e) => setDateTo(e.target.value)}
+                        />
+                      </FilterInputGroup>
+
+                      <FilterInputGroup style={{ gridColumn: "span 2" }}>
+                        <label>Sortowanie</label>
+                        <select 
+                          value={sortBy} 
+                          onChange={(e) => setSortBy(e.target.value)}
+                        >
+                          <option value="dateDesc">Data: Najnowsze pierwsze</option>
+                          <option value="dateAsc">Data: Najstarsze pierwsze</option>
+                          <option value="durationDesc">Czas lotu: Najdłuższe pierwsze</option>
+                          <option value="durationAsc">Czas lotu: Najkrótsze pierwsze</option>
+                          <option value="delayDesc">Opóźnienie: Największe pierwsze</option>
+                        </select>
+                      </FilterInputGroup>
+                    </FiltersGrid>
+                  </AdvancedFiltersPanel>
+                )}
+
+                {/* Active Filter Badges */}
+                {getActiveFiltersCount() > 0 && (
+                  <ActiveBadgesRow>
+                    <span className="badges-label">Aktywne filtry ({getActiveFiltersCount()}):</span>
+                    {searchQuery && <FilterBadge>Szukaj: "{searchQuery}" <span onClick={() => setSearchQuery("")}>&times;</span></FilterBadge>}
+                    {departureFilter && <FilterBadge>Start: {departureFilter.toUpperCase()} <span onClick={() => setDepartureFilter("")}>&times;</span></FilterBadge>}
+                    {arrivalFilter && <FilterBadge>Meta: {arrivalFilter.toUpperCase()} <span onClick={() => setArrivalFilter("")}>&times;</span></FilterBadge>}
+                    {airlineFilter && <FilterBadge>Linia: {airlineFilter} <span onClick={() => setAirlineFilter("")}>&times;</span></FilterBadge>}
+                    {aircraftFilter && <FilterBadge>Maszyna: {aircraftFilter} <span onClick={() => setAircraftFilter("")}>&times;</span></FilterBadge>}
+                    {dateFrom && <FilterBadge>Od: {dateFrom} <span onClick={() => setDateFrom("")}>&times;</span></FilterBadge>}
+                    {dateTo && <FilterBadge>Do: {dateTo} <span onClick={() => setDateTo("")}>&times;</span></FilterBadge>}
+                    {sortBy !== "dateDesc" && <FilterBadge>Sortowanie: {getSortName(sortBy)} <span onClick={() => setSortBy("dateDesc")}>&times;</span></FilterBadge>}
+                  </ActiveBadgesRow>
+                )}
+              </SearchSectionCard>
+
+              {filteredFlights.length > 0 ? (
+                <TableContainer>
+                  <FlightTable>
+                    <TableHeader>
+                      <tr>
+                        <th>Data</th>
+                        <th>Lot</th>
+                        <th>Trasa</th>
+                        <th>Linia</th>
+                        <th>Samolot</th>
+                        <th>Czas</th>
+                        <th>Szczegóły</th>
                       </tr>
-                    ))}
-                  </TableBody>
-                </FlightTable>
-              </TableContainer>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredFlights.map((flight, idx) => (
+                        <tr key={idx}>
+                          <td data-label="Data">
+                            {moment(flight.fli_dep_time).format("YYYY-MM-DD")}
+                          </td>
+                          <td data-label="Lot" style={{ fontWeight: 700 }}>
+                            {flight.fli_number}
+                          </td>
+                          <td data-label="Trasa">
+                            <span style={{ fontWeight: 600 }}>
+                              {flight.fli_dest_air_iata || flight.fli_dest_air_icao}
+                            </span>
+                            <span style={{ color: "#94a3b8", margin: "0 0.4rem" }}>→</span>
+                            <span style={{ fontWeight: 600 }}>
+                              {flight.fli_arr_air_iata || flight.fli_arr_air_icao}
+                            </span>
+                          </td>
+                          <td data-label="Linia">{flight.fli_airline}</td>
+                          <td data-label="Samolot">
+                            {flight.fli_aircraft_type || flight.fli_aircraft || "Brak"}
+                          </td>
+                          <td data-label="Czas">{flight.fli_duration || "0:00"}</td>
+                          <td data-label="Szczegóły">
+                            <ActionButton onClick={() => setSelectedFlight(flight)}>
+                              <Info size={14} /> Zobacz
+                            </ActionButton>
+                          </td>
+                        </tr>
+                      ))}
+                    </TableBody>
+                  </FlightTable>
+                </TableContainer>
+              ) : (
+                <div style={{ padding: "3rem", textAlign: "center", color: "#64748b", background: "#ffffff", borderRadius: "16px", marginTop: "1rem", border: "1px dashed #cbd5e1" }}>
+                  Nie znaleziono lotów pasujących do podanych kryteriów wyszukiwania.
+                </div>
+              )}
             </FadeIn>
           )}
         </div>
@@ -1008,3 +1289,190 @@ const LegendIndicator = styled.div`
   background: ${props => props.color};
   border: 1px solid ${props => props.border};
 `;
+
+const SearchSectionCard = styled.div`
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const MainSearchRow = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+const SearchInputWrapper = styled.div`
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.65rem 0.65rem 0.65rem 2.5rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+  }
+`;
+
+const ExpandFiltersButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: ${props => props.active ? "#eff6ff" : "#ffffff"};
+  color: ${props => props.active ? "#2563eb" : "#475569"};
+  border: 1px solid ${props => props.active ? "#bfdbfe" : "#e2e8f0"};
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+  }
+`;
+
+const ResetFiltersBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #fef2f2;
+  }
+`;
+
+const AdvancedFiltersPanel = styled.div`
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
+  animation: ${fadeIn} 0.3s ease-out;
+`;
+
+const FiltersGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FilterInputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    color: #1e293b;
+    background-color: #f8fafc;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #3b82f6;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+    }
+  }
+`;
+
+const ActiveBadgesRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+
+  .badges-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+  }
+`;
+
+const FilterBadge = styled.span`
+  background: #f1f5f9;
+  color: #334155;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #e2e8f0;
+
+  span {
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #94a3b8;
+    line-height: 1;
+
+    &:hover {
+      color: #ef4444;
+    }
+  }
+`;
+
