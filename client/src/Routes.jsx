@@ -9,6 +9,7 @@ import Flights from "./pages/Flights";
 import AddFlights from "./pages/AddFlight";
 import Stats from "./screens/Stats";
 import MapPage from "./pages/MapPage";
+import VisitedCountries from "./pages/VisitedCountries";
 
 export function Router() {
   return (
@@ -20,6 +21,7 @@ export function Router() {
         <Route path="/add-flight" element={<AddFlights />} />
         <Route path="/stats" element={<Stats />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/visited-countries" element={<VisitedCountries />} />
         <Route path="/my-profile" element={<MyProfile />} />
       </Route>
       <Route path="/" element={<LoginPage />} />

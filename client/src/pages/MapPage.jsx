@@ -52,7 +52,7 @@ export default function MapPage() {
   const [filteredFlights, setFilteredFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Selected Route & Home Airport States
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(null);
   const [homeAirport, setHomeAirport] = useState("");
@@ -60,7 +60,7 @@ export default function MapPage() {
   // Filters
   const [searchAirport, setSearchAirport] = useState("");
   const [searchAirline, setSearchAirline] = useState("");
-  
+
   useEffect(() => {
     const fetchFlights = async () => {
       try {
@@ -69,7 +69,7 @@ export default function MapPage() {
 
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Brak tokena w localStorage");
-        
+
         let payloadBase64 = token.split(".")[1];
         if (!payloadBase64) throw new Error("Niepoprawny token JWT");
         payloadBase64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
@@ -115,7 +115,7 @@ export default function MapPage() {
 
     if (searchAirport.trim() !== "") {
       const q = searchAirport.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         (f.fli_dest_air_icao && f.fli_dest_air_icao.toLowerCase().includes(q)) ||
         (f.fli_dest_air_iata && f.fli_dest_air_iata.toLowerCase().includes(q)) ||
         (f.fli_arr_air_icao && f.fli_arr_air_icao.toLowerCase().includes(q)) ||
@@ -125,7 +125,7 @@ export default function MapPage() {
 
     if (searchAirline.trim() !== "") {
       const q = searchAirline.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         f.fli_airline && f.fli_airline.toLowerCase().includes(q)
       );
     }
@@ -136,7 +136,7 @@ export default function MapPage() {
   // Calculations for stats
   const uniqueAirports = new Set();
   const uniqueCountries = new Set();
-  
+
   filteredFlights.forEach(f => {
     if (f.fli_dest_air_icao) {
       uniqueAirports.add(f.fli_dest_air_icao);
@@ -191,7 +191,7 @@ export default function MapPage() {
       <ContentWrapper>
         <MapContent>
           <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-            
+
             {/* Header */}
             <HeaderBlock>
               <div>
@@ -220,7 +220,7 @@ export default function MapPage() {
 
             {!loading && !error && (
               <FadeIn>
-                
+
                 {/* Stats Bar */}
                 <StatsGrid>
                   <StatCard>
@@ -260,8 +260,8 @@ export default function MapPage() {
                   <FiltersForm>
                     <InputWrapper>
                       <Search size={16} className="input-icon" />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="Szukaj lotniska (np. EPKK, LHR)..."
                         value={searchAirport}
                         onChange={(e) => setSearchAirport(e.target.value)}
@@ -270,8 +270,8 @@ export default function MapPage() {
 
                     <InputWrapper>
                       <Search size={16} className="input-icon" />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="Szukaj linii (np. Ryanair, LOT)..."
                         value={searchAirline}
                         onChange={(e) => setSearchAirline(e.target.value)}
@@ -282,18 +282,18 @@ export default function MapPage() {
 
                 {/* Map Display */}
                 <MapOuterWrapper>
-                  <MapContainer 
-                    center={[50.0, 15.0]} 
-                    zoom={4} 
+                  <MapContainer
+                    center={[50.0, 15.0]}
+                    zoom={4}
                     style={{ height: "100%", width: "100%" }}
                   >
                     <TileLayer
                       url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
-                    
+
                     <MapEvents onMapClick={() => setSelectedRouteIndex(null)} />
-                    
+
                     {/* Fit Bounds automatically */}
                     <FitBounds flightsData={filteredFlights} />
 
@@ -301,27 +301,27 @@ export default function MapPage() {
                     {filteredFlights.map((flight, idx) => {
                       const dep = airports[flight.fli_dest_air_icao];
                       const arr = airports[flight.fli_arr_air_icao];
-                      
+
                       if (dep && arr && dep.lat != null && dep.lon != null && arr.lat != null && arr.lon != null) {
                         const isSelected = selectedRouteIndex === idx;
-                        
+
                         // Style options based on whether this route is selected, or if another route is selected
                         const color = isSelected ? '#1e40af' : '#6366f1'; // Navy blue when selected, standard indigo otherwise
                         const weight = isSelected ? 4.5 : 2.5;
-                        const opacity = isAnyRouteSelected 
-                          ? (isSelected ? 1.0 : 0.05) 
+                        const opacity = isAnyRouteSelected
+                          ? (isSelected ? 1.0 : 0.05)
                           : 0.45; // Dim others to almost transparent, highlight current
 
                         return (
-                          <Polyline 
+                          <Polyline
                             key={`line-${idx}`}
-                            positions={[[dep.lat, dep.lon], [arr.lat, arr.lon]]} 
-                            pathOptions={{ 
-                              color: color, 
-                              weight: weight, 
+                            positions={[[dep.lat, dep.lon], [arr.lat, arr.lon]]}
+                            pathOptions={{
+                              color: color,
+                              weight: weight,
                               opacity: opacity,
-                              dashArray: 'none' 
-                            }} 
+                              dashArray: 'none'
+                            }}
                             eventHandlers={{
                               click: (e) => {
                                 L.DomEvent.stopPropagation(e);
@@ -352,7 +352,7 @@ export default function MapPage() {
                     {Object.values(airportMarkers).map((ap) => {
                       const associatedFlights = getAirportFlights(ap.icao);
                       const isHome = ap.icao === homeAirport;
-                      
+
                       // Highlight marker if it is departure/arrival of selected route, or if no route is selected
                       let isAirportHighlighted = true;
                       if (isAnyRouteSelected) {
@@ -368,16 +368,16 @@ export default function MapPage() {
                       const fillOpacity = isAirportHighlighted ? (isHome ? 0.95 : 0.85) : 0.05;
 
                       return (
-                        <CircleMarker 
+                        <CircleMarker
                           key={`marker-${ap.icao}`}
-                          center={[ap.lat, ap.lon]} 
-                          radius={radius} 
-                          pathOptions={{ 
-                            color: markerColor, 
-                            fillColor: fillColor, 
-                            fillOpacity: fillOpacity, 
+                          center={[ap.lat, ap.lon]}
+                          radius={radius}
+                          pathOptions={{
+                            color: markerColor,
+                            fillColor: fillColor,
+                            fillOpacity: fillOpacity,
                             opacity: opacity,
-                            weight: isHome ? 2.5 : 1.5 
+                            weight: isHome ? 2.5 : 1.5
                           }}
                         >
                           <Popup>

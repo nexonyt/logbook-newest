@@ -235,4 +235,37 @@ LIMIT 1;
 };
 
 
-module.exports = { addFlightQuery, getFlightsDurationSum, getAllFlights, getUserProfile };
+const getVisitedCountries = (req, res) => {
+  const userID = req.body.userID;
+  db.query('SELECT country_code FROM user_visited_countries WHERE user_id = ?', [userID], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving visited countries');
+    }
+    res.json(result.map(r => r.country_code));
+  });
+};
+
+const addVisitedCountry = (req, res) => {
+  const { userID, countryCode } = req.body;
+  db.query('INSERT IGNORE INTO user_visited_countries (user_id, country_code) VALUES (?, ?)', [userID, countryCode], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error adding visited country');
+    }
+    res.send('added');
+  });
+};
+
+const removeVisitedCountry = (req, res) => {
+  const { userID, countryCode } = req.body;
+  db.query('DELETE FROM user_visited_countries WHERE user_id = ? AND country_code = ?', [userID, countryCode], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error removing visited country');
+    }
+    res.send('removed');
+  });
+};
+
+module.exports = { addFlightQuery, getFlightsDurationSum, getAllFlights, getUserProfile, getVisitedCountries, addVisitedCountry, removeVisitedCountry };
