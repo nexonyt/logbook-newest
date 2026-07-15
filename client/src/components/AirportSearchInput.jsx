@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 const AddFlightsInput = styled.input`
@@ -35,11 +35,11 @@ const SuggestionsList = styled.ul`
   width: 100%;
   border: 1px solid #e2e8f0;
   background-color: #fff;
-  z-index: 20;
+  z-index: 50;
   list-style: none;
   margin: 0.25rem 0 0 0;
   padding: 0;
-  max-height: 200px;
+  max-height: 220px;
   overflow-y: auto;
   border-radius: 10px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -49,7 +49,7 @@ const SuggestionItem = styled.li`
   padding: 10px 12px;
   cursor: pointer;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #334155;
   transition: background-color 0.2s ease;
 
@@ -61,6 +61,11 @@ const SuggestionItem = styled.li`
     background-color: #f8fafc;
     color: #3b82f6;
   }
+
+  strong {
+    color: #0f172a;
+    font-weight: 700;
+  }
 `;
 
 const InputWrapper = styled.div`
@@ -68,55 +73,76 @@ const InputWrapper = styled.div`
   width: 100%;
 `;
 
-
-const AirportSearchInput = ({ placeholder, onAirportSelect, airports }) => {
-  const [query, setQuery] = useState("");
+const AirportSearchInput = ({ placeholder, onAirportSelect, airports, value, onChange }) => {
   const [filteredAirports, setFilteredAirports] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  // Close suggestions when user clicks outside the component
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleInputChange = (event) => {
-    const value = event.target.value;
-    setQuery(value);
+    const val = event.target.value;
+    onChange(val);
+    setIsOpen(true);
 
-    if (value.trim() === "") {
+    if (val.trim() === "") {
       setFilteredAirports([]);
       return;
     }
- if (value.length>=2) {
 
-     const results = Object.values(airports).filter(
-         (airport) =>
-            (airport.iata && airport.iata.toLowerCase().includes(value.toLowerCase())) ||
-         (airport.icao && airport.icao.toLowerCase().includes(value.toLowerCase())) ||
-         (airport.name && airport.name.toLowerCase().includes(value.toLowerCase()))
-        );
-        
-        setFilteredAirports(results);
+    if (val.length >= 2) {
+      const results = Object.values(airports).filter(
+        (airport) =>
+          (airport.iata && airport.iata.toLowerCase().includes(val.toLowerCase())) ||
+          (airport.icao && airport.icao.toLowerCase().includes(val.toLowerCase())) ||
+          (airport.name && airport.name.toLowerCase().includes(val.toLowerCase())) ||
+          (airport.city && airport.city.toLowerCase().includes(val.toLowerCase())) ||
+          (airport.country && airport.country.toLowerCase().includes(val.toLowerCase()))
+      );
+      
+      // Limit to 10 items for maximum performance and neat visual layout
+      setFilteredAirports(results.slice(0, 10));
+    } else {
+      setFilteredAirports([]);
     }
   };
 
   const handleSelectAirport = (airport) => {
-    setQuery(`${airport.name} (${airport.iata}/${airport.icao})`);
+    const displayValue = `${airport.name} (${airport.iata || "---"}/${airport.icao})`;
+    onChange(displayValue);
     setFilteredAirports([]);
-    onAirportSelect(airport); // Przekaż wybrane lotnisko do nadrzędnego komponentu
+    setIsOpen(false);
+    onAirportSelect(airport);
   };
 
   return (
-    <InputWrapper>
+    <InputWrapper ref={containerRef}>
       <AddFlightsInput
         type="text"
         placeholder={placeholder}
-        value={query}
+        value={value || ""}
         onChange={handleInputChange}
-        
+        onFocus={() => setIsOpen(true)}
       />
-      {filteredAirports.length > 0 && (
+      {isOpen && filteredAirports.length > 0 && (
         <SuggestionsList>
           {filteredAirports.map((airport) => (
             <SuggestionItem
               key={airport.icao}
               onClick={() => handleSelectAirport(airport)}
             >
-              {airport.name}, {airport.iata}/{airport.icao}
+              <strong>{airport.icao} / {airport.iata || "---"}</strong> - {airport.name} ({airport.city}, {airport.country})
             </SuggestionItem>
           ))}
         </SuggestionsList>

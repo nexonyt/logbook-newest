@@ -5,7 +5,7 @@ import axios from "axios";
 import NavBar from "../components/Navbar";
 import AirportSearchInput from "../components/AirportSearchInput";
 import airports from "../data/airports.json";
-import { Plane, Calendar, MapPin, Info } from "lucide-react";
+import { Plane, Calendar, MapPin, Info, ArrowRight, Clock } from "lucide-react";
 
 const initialPreFlightData = {
   userID: 0,
@@ -17,8 +17,10 @@ const initialPreFlightData = {
   flightAirline: "",
   flightDestIATA: "",
   flightDestICAO: "",
+  flightDestSearchVal: "",
   flightArrivalIATA: "",
   flightArrivalICAO: "",
+  flightArrivalSearchVal: "",
   fliAircraft: "",
   fliDelay: "",
   flightDuration: "",
@@ -65,6 +67,21 @@ export default function AddFlights() {
       return;
     }
 
+    if (!preFlightData.flightDestICAO || !preFlightData.flightArrivalICAO) {
+      toast.error("Wybierz poprawne lotnisko odlotu i przylotu z wyszukiwarki.");
+      return;
+    }
+
+    if (!preFlightData.flightDateDeparture || !preFlightData.flightTimeDeparture) {
+      toast.error("Uzupełnij datę i godzinę odlotu.");
+      return;
+    }
+
+    if (!preFlightData.flightDateArrival || !preFlightData.flightTimeArrival) {
+      toast.error("Uzupełnij datę i godzinę przylotu.");
+      return;
+    }
+
     const flightData = {
       userID: preFlightData.userID,
       flightNumber: preFlightData.flightNumber,
@@ -76,8 +93,8 @@ export default function AddFlights() {
       flightArrivalIATA: preFlightData.flightArrivalIATA,
       flightArrivalICAO: preFlightData.flightArrivalICAO,
       fliAircraft: preFlightData.fliAircraft,
-      flightDuration: preFlightData.flightDuration,
-      fliDelay: preFlightData.fliDelay,
+      flightDuration: preFlightData.flightDuration || "0:00",
+      fliDelay: preFlightData.fliDelay || "0:00",
       fliSeats: preFlightData.fliSeats,
       fliDetails: preFlightData.fliDetails,
       fliAircraftType: preFlightData.fliAircraftType,
@@ -107,6 +124,7 @@ export default function AddFlights() {
           <FormTitle>Dodaj nowy lot</FormTitle>
           <FormSubtitle>Uzupełnij poniższy formularz, aby dodać wpis do swojego logbooka</FormSubtitle>
           
+          {/* Section 1: General Info */}
           <SectionHeader>
             <Plane size={18} /> Informacje ogólne
           </SectionHeader>
@@ -133,52 +151,64 @@ export default function AddFlights() {
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
+          {/* Section 2: Airports Selection (Optimized UX) */}
           <SectionHeader>
-            <MapPin size={18} /> Trasa (Lotniska)
+            <MapPin size={18} /> Trasa (Wyszukiwarka lotnisk)
           </SectionHeader>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
-              <CustomLabel>Kod ICAO lotniska odlotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightDestICAO"
-                value={preFlightData.flightDestICAO}
-                onChange={handleChange}
-                placeholder="np. EPWA"
-              />
-            </DivContainerWithLabel>
-            <DivContainerWithLabel>
-              <CustomLabel>Kod IATA lotniska odlotu</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightDestIATA"
-                value={preFlightData.flightDestIATA}
-                onChange={handleChange}
-                placeholder="np. WAW"
-              />
-            </DivContainerWithLabel>
-          </AddFlightsDivRow>
-          <AddFlightsDivRow>
-            <DivContainerWithLabel>
-              <CustomLabel>Kod ICAO lotniska przylotu</CustomLabel>
+              <CustomLabel>Lotnisko odlotu (ICAO/IATA/Nazwa)</CustomLabel>
               <AirportSearchInput
-                placeholder="Wpisz kod ICAO lub nazwę lotniska"
+                placeholder="Wyszukaj i wybierz lotnisko odlotu..."
                 airports={airports}
-                onChange={(e) => setPreFlightData((prev) => ({ ...prev, flightArrivalICAO: e.target.value }))}
-                onAirportSelect={(airport) => setPreFlightData((prev) => ({ ...prev, flightArrivalICAO: airport.icao }))}
+                value={preFlightData.flightDestSearchVal}
+                onChange={(val) => setPreFlightData((prev) => ({ 
+                  ...prev, 
+                  flightDestSearchVal: val,
+                  ...(val.trim() === "" ? { flightDestICAO: "", flightDestIATA: "" } : {})
+                }))}
+                onAirportSelect={(airport) => setPreFlightData((prev) => ({ 
+                  ...prev, 
+                  flightDestICAO: airport.icao,
+                  flightDestIATA: airport.iata || ""
+                }))}
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
-              <CustomLabel>Kod IATA lotniska przylotu</CustomLabel>
+              <CustomLabel>Lotnisko przylotu (ICAO/IATA/Nazwa)</CustomLabel>
               <AirportSearchInput
-                placeholder="Wpisz kod IATA lub nazwę lotniska"
+                placeholder="Wyszukaj i wybierz lotnisko przylotu..."
                 airports={airports}
-                onChange={(e) => setPreFlightData((prev) => ({ ...prev, flightArrivalIATA: e.target.value }))}
-                onAirportSelect={(airport) => setPreFlightData((prev) => ({ ...prev, flightArrivalIATA: airport.iata }))}
+                value={preFlightData.flightArrivalSearchVal}
+                onChange={(val) => setPreFlightData((prev) => ({ 
+                  ...prev, 
+                  flightArrivalSearchVal: val,
+                  ...(val.trim() === "" ? { flightArrivalICAO: "", flightArrivalIATA: "" } : {})
+                }))}
+                onAirportSelect={(airport) => setPreFlightData((prev) => ({ 
+                  ...prev, 
+                  flightArrivalICAO: airport.icao,
+                  flightArrivalIATA: airport.iata || ""
+                }))}
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
+          {/* Dynamic Flight Path Preview Banner */}
+          {(preFlightData.flightDestICAO || preFlightData.flightArrivalICAO) && (
+            <RoutePreviewCard>
+              <div className="preview-title">Podgląd operacyjny trasy</div>
+              <div className="preview-route">
+                <span className="iata">{preFlightData.flightDestIATA || "???"}</span>
+                <span className="icao">({preFlightData.flightDestICAO || "Brak"})</span>
+                <ArrowRight size={18} className="arrow-icon" />
+                <span className="iata">{preFlightData.flightArrivalIATA || "???"}</span>
+                <span className="icao">({preFlightData.flightArrivalICAO || "Brak"})</span>
+              </div>
+            </RoutePreviewCard>
+          )}
+
+          {/* Section 3: Date & Times (Native pickers for ultimate UX) */}
           <SectionHeader>
             <Calendar size={18} /> Harmonogram i czasy
           </SectionHeader>
@@ -186,21 +216,19 @@ export default function AddFlights() {
             <DivContainerWithLabel>
               <CustomLabel>Data odlotu</CustomLabel>
               <AddFlightsInput
-                type="text"
+                type="date"
                 name="flightDateDeparture"
                 value={preFlightData.flightDateDeparture}
                 onChange={handleChange}
-                placeholder="YYYY-MM-DD (np. 2024-07-15)"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
-              <CustomLabel>Godzina odlotu</CustomLabel>
+              <CustomLabel>Godzina odlotu (Lokalna)</CustomLabel>
               <AddFlightsInput
-                type="text"
+                type="time"
                 name="flightTimeDeparture"
                 value={preFlightData.flightTimeDeparture}
                 onChange={handleChange}
-                placeholder="HH:MM (np. 17:15)"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
@@ -208,47 +236,46 @@ export default function AddFlights() {
             <DivContainerWithLabel>
               <CustomLabel>Data przylotu</CustomLabel>
               <AddFlightsInput
-                type="text"
+                type="date"
                 name="flightDateArrival"
                 value={preFlightData.flightDateArrival}
                 onChange={handleChange}
-                placeholder="YYYY-MM-DD (np. 2024-07-15)"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
-              <CustomLabel>Godzina przylotu</CustomLabel>
+              <CustomLabel>Godzina przylotu (Lokalna)</CustomLabel>
               <AddFlightsInput
-                type="text"
+                type="time"
                 name="flightTimeArrival"
                 value={preFlightData.flightTimeArrival}
                 onChange={handleChange}
-                placeholder="HH:MM (np. 22:45)"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
-              <CustomLabel>Czas trwania lotu</CustomLabel>
+              <CustomLabel>Czas trwania lotu (np. 03:45)</CustomLabel>
               <AddFlightsInput
                 type="text"
                 name="flightDuration"
                 value={preFlightData.flightDuration}
                 onChange={handleChange}
-                placeholder="HH:MM (np. 3:45)"
+                placeholder="HH:MM (np. 03:45)"
               />
             </DivContainerWithLabel>
             <DivContainerWithLabel>
-              <CustomLabel>Opóźnienie lotu</CustomLabel>
+              <CustomLabel>Opóźnienie lotu (jeśli występuje)</CustomLabel>
               <AddFlightsInput
                 type="text"
                 name="fliDelay"
                 value={preFlightData.fliDelay}
                 onChange={handleChange}
-                placeholder="HH:MM (np. 0:30)"
+                placeholder="HH:MM (np. 00:30)"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
 
+          {/* Section 4: Aircraft Details */}
           <SectionHeader>
             <Info size={18} /> Szczegóły samolotu i rejsu
           </SectionHeader>
@@ -292,7 +319,7 @@ export default function AddFlights() {
                 name="fliDetails"
                 value={preFlightData.fliDetails}
                 onChange={handleChange}
-                placeholder="np. Turbulencje nad Alpami"
+                placeholder="np. Widok na Alpy, silny wiatr"
               />
             </DivContainerWithLabel>
           </AddFlightsDivRow>
@@ -445,6 +472,50 @@ const DivContainerWithLabel = styled.div`
   }
 `;
 
+const RoutePreviewCard = styled.div`
+  background: #f8fafc;
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  animation: ${fadeIn} 0.3s ease-out;
+
+  .preview-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .preview-route {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .iata {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e3a8a;
+  }
+
+  .icao {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .arrow-icon {
+    color: #3b82f6;
+  }
+`;
+
 const SubmitButton = styled.button`
   display: flex;
   justify-content: center;
@@ -472,4 +543,4 @@ const SubmitButton = styled.button`
   &:active {
     transform: translateY(0);
   }
-`;
+`;
