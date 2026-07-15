@@ -8,6 +8,7 @@ import PrivateRoutes from "./utils/PrivateRoutes";
 import Flights from "./pages/Flights";
 import AddFlights from "./pages/AddFlight";
 import Stats from "./screens/Stats";
+import MapPage from "./pages/MapPage";
 
 export function Router() {
   return (
@@ -18,6 +19,7 @@ export function Router() {
         <Route path="/flights" element={<Flights />} />
         <Route path="/add-flight" element={<AddFlights />} />
         <Route path="/stats" element={<Stats />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="/my-profile" element={<MyProfile />} />
       </Route>
       <Route path="/" element={<LoginPage />} />
