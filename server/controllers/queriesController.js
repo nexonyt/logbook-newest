@@ -84,7 +84,7 @@ const getFlightsDurationSum = (req, res) => {
 
 
   const sumTimeOfFlights = `SELECT CONCAT(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 3600), 'h ', MOD(FLOOR(SUM(TIME_TO_SEC(fli_duration)) / 60), 60), 'm') AS total_duration FROM flights WHERE user_id = ${userID};`
-  const longestFlightSQL = `SELECT DATE_FORMAT(SEC_TO_TIME(MAX(TIME_TO_SEC(fli_duration))), '%H:%i') AS max_duration, fli_dest_air_icao,fli_dest_air_iata,fli_arr_air_icao,fli_arr_air_iata,fli_airline FROM flights WHERE user_id = ${userID};`;
+  const longestFlightSQL = `SELECT DATE_FORMAT(SEC_TO_TIME(TIME_TO_SEC(fli_duration)), '%H:%i') AS max_duration, fli_dest_air_icao, fli_dest_air_iata, fli_arr_air_icao, fli_arr_air_iata, fli_airline FROM flights WHERE user_id = ${userID} ORDER BY TIME_TO_SEC(fli_duration) DESC LIMIT 1;`;
   const maxDelaySQL = `SELECT fli_number,fli_dest_air_icao,fli_dest_air_iata, fli_arr_air_icao,fli_arr_air_iata, fli_delay,fli_airline AS max_delay  FROM flights WHERE user_id = ${userID} ORDER BY fli_delay DESC LIMIT 1;
   `;
 
@@ -115,9 +115,9 @@ ORDER BY count DESC
 `;
 
   const airlineWithLeastDelaySQL = `
-SELECT fli_airline, AVG(fli_delay) AS avg_delay 
+SELECT fli_airline, ROUND(AVG(TIME_TO_SEC(fli_delay)) / 3600, 1) AS avg_delay 
 FROM flights 
-WHERE user_id = ${userID} 
+WHERE user_id = ${userID} AND fli_delay IS NOT NULL AND fli_delay != ''
 GROUP BY fli_airline 
 ORDER BY avg_delay ASC 
 LIMIT 1;
