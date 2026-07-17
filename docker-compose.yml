@@ -1,0 +1,22 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    container_name: logbook-server
+    restart: always
+    ports:
+      - "4040:4040"
+    env_file:
+      - ./server/.env
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: logbook-client
+    restart: always
+    ports:
+      - "3001:80"
+    depends_on:
+      - server
