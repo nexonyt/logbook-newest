@@ -2,7 +2,8 @@ const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const util = require('util');
-const airports = require("../../client/src/data/airports.json");
+const path = require("path");
+const airports = require("../data/airports.json");
 
 const app = express();
 app.options('*', cors());
