@@ -1,18 +1,25 @@
-FROM node:22-alpine
+# Build stage
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copy package files from the server subdirectory
-COPY server/package*.json ./
+COPY package*.json ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copy all server code from the server subdirectory
-COPY server/ .
+COPY . .
 
-# Copy the shared airports.json from the client subdirectory
-COPY client/src/data/airports.json ../client/src/data/airports.json
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
-EXPOSE 4040
+RUN npm run build
 
-CMD ["node", "logbook-index.js"]
+# Production stage
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

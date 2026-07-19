@@ -77,7 +77,7 @@ export default function MapPage() {
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-        const response = await axios.post("http://localhost:4040/getAllFlights", { userID });
+        const response = await axios.post("/getAllFlights", { userID });
         const flightsData = response.data;
         setFlights(flightsData);
         setFilteredFlights(flightsData);

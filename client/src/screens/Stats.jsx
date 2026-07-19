@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import styled from "styled-components";
 import NavBar from "../components/Navbar";
 import FadeIn from "react-fade-in";
@@ -161,16 +162,8 @@ export default function Stats() {
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-        const res = await fetch(
-          "http://localhost:4040/getflightdurationsum",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userID }),
-          }
-        );
-        if (!res.ok) throw new Error("Błąd w pobieraniu danych");
-        const data = await res.json();
+        const res = await axios.post("/getflightdurationsum", { userID });
+        const data = res.data;
 
         await new Promise((resolve) => setTimeout(resolve, 500));
 

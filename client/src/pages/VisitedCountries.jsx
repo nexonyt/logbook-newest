@@ -95,7 +95,7 @@ export default function VisitedCountries() {
       const userID = getUserID();
 
       // Fetch Flights
-      const flightsResponse = await axios.post("http://localhost:4040/getAllFlights", { userID });
+      const flightsResponse = await axios.post("/getAllFlights", { userID });
       const flightsData = flightsResponse.data;
 
       // Extract unique countries visited via flights
@@ -111,7 +111,7 @@ export default function VisitedCountries() {
       setFlightsCountries(Array.from(fCountries));
 
       // Fetch custom visited countries (visited without flights)
-      const customResponse = await axios.post("http://localhost:4040/get-visited-countries", { userID });
+      const customResponse = await axios.post("/get-visited-countries", { userID });
       setCustomCountries(customResponse.data);
 
     } catch (err) {
@@ -140,7 +140,7 @@ export default function VisitedCountries() {
     try {
       setAdding(true);
       const userID = getUserID();
-      await axios.post("http://localhost:4040/add-visited-country", {
+      await axios.post("/add-visited-country", {
         userID,
         countryCode: selectedCountry.code
       });
@@ -162,7 +162,7 @@ export default function VisitedCountries() {
 
     try {
       const userID = getUserID();
-      await axios.post("http://localhost:4040/remove-visited-country", {
+      await axios.post("/remove-visited-country", {
         userID,
         countryCode: code
       });

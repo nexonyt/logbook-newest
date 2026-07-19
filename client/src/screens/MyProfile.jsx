@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import SettingsSection from "../components/SettingsSection";
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import styled, { keyframes } from "styled-components";
 import NavBar from "../components/Navbar";
 import ContentLoader from "react-content-loader";
@@ -346,15 +347,8 @@ export default function MyProfile() {
         const userID = payload.user_id;
         if (!userID) throw new Error("Brak userID w tokenie");
 
-        //  const res = await fetch("https://api-flights.nexonstudio.pl/get-user-profile", {
-        const res = await fetch("http://localhost:4040/get-user-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userID }),
-        });
-
-        if (!res.ok) throw new Error("Błąd w pobieraniu danych");
-        const data = await res.json();
+        const res = await axios.post("/get-user-profile", { userID });
+        const data = res.data;
 
         await new Promise((resolve) => setTimeout(resolve, 100));
 
