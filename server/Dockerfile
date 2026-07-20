@@ -1,25 +1,20 @@
-# Build stage
-FROM node:22-alpine AS build
+# Używamy Node.js jako bazy
+FROM node:22-alpine
 
+# Ustalamy katalog roboczy wewnątrz kontenera
 WORKDIR /app
 
+# Kopiujemy pliki zależności
 COPY package*.json ./
 
+# Instalujemy paczki (tutaj legacy-peer-deps, bo widzę, że masz starsze zależności)
 RUN npm install --legacy-peer-deps
 
+# Kopiujemy całą resztę kodu serwera
 COPY . .
 
-ENV NODE_OPTIONS="--max-old-space-size=2048"
+# Otwieramy port, na którym nasłuchuje Twój backend (w docker-compose masz 4040)
+EXPOSE 4040
 
-RUN npm run build
-
-# Production stage
-FROM nginx:alpine
-
-COPY --from=build /app/build /usr/share/nginx/html
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Uruchamiamy serwer
+CMD ["node", "logbook-index.js"]
