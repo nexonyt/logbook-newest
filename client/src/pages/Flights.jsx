@@ -22,6 +22,17 @@ const ArmchairIcon = ({ selected }) => (
   </svg>
 );
 
+const formatDuration = (durationStr) => {
+  if (!durationStr) return "00:00";
+  const parts = durationStr.split(":");
+  if (parts.length >= 2) {
+    const hours = parts[0].padStart(2, "0");
+    const minutes = parts[1].padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+  return durationStr;
+};
+
 export default function Flights() {
   const [flights, setFlights] = useState([]);
   const [filteredFlights, setFilteredFlights] = useState([]);
@@ -82,7 +93,7 @@ export default function Flights() {
     // General text search
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         (f.fli_number && f.fli_number.toLowerCase().includes(q)) ||
         (f.fli_airline && f.fli_airline.toLowerCase().includes(q)) ||
         (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
@@ -94,7 +105,7 @@ export default function Flights() {
     // Departure Airport
     if (departureFilter.trim() !== "") {
       const q = departureFilter.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         (f.fli_dest_air_icao && f.fli_dest_air_icao.toLowerCase().includes(q)) ||
         (f.fli_dest_air_iata && f.fli_dest_air_iata.toLowerCase().includes(q)) ||
         (airports[f.fli_dest_air_icao]?.name && airports[f.fli_dest_air_icao].name.toLowerCase().includes(q)) ||
@@ -105,7 +116,7 @@ export default function Flights() {
     // Arrival Airport
     if (arrivalFilter.trim() !== "") {
       const q = arrivalFilter.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         (f.fli_arr_air_icao && f.fli_arr_air_icao.toLowerCase().includes(q)) ||
         (f.fli_arr_air_iata && f.fli_arr_air_iata.toLowerCase().includes(q)) ||
         (airports[f.fli_arr_air_icao]?.name && airports[f.fli_arr_air_icao].name.toLowerCase().includes(q)) ||
@@ -116,7 +127,7 @@ export default function Flights() {
     // Airline
     if (airlineFilter.trim() !== "") {
       const q = airlineFilter.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         f.fli_airline && f.fli_airline.toLowerCase().includes(q)
       );
     }
@@ -124,7 +135,7 @@ export default function Flights() {
     // Aircraft Type/Reg
     if (aircraftFilter.trim() !== "") {
       const q = aircraftFilter.toLowerCase();
-      result = result.filter(f => 
+      result = result.filter(f =>
         (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
         (f.fli_aircraft_type && f.fli_aircraft_type.toLowerCase().includes(q))
       );
@@ -133,7 +144,7 @@ export default function Flights() {
     // Date From
     if (dateFrom !== "") {
       result = result.filter(f => {
-        const depDate = moment(f.fli_dep_time).format("YYYY-MM-DD");
+        const depDate = moment.utc(f.fli_dep_time).format("YYYY-MM-DD");
         return depDate >= dateFrom;
       });
     }
@@ -141,7 +152,7 @@ export default function Flights() {
     // Date To
     if (dateTo !== "") {
       result = result.filter(f => {
-        const depDate = moment(f.fli_dep_time).format("YYYY-MM-DD");
+        const depDate = moment.utc(f.fli_dep_time).format("YYYY-MM-DD");
         return depDate <= dateTo;
       });
     }
@@ -224,11 +235,11 @@ export default function Flights() {
         </CabinContainer>
       );
     }
-    
+
     const seatMatch = seat.match(/^(\d+)([A-F])$/i);
     let rowNum = 12;
     let seatLetter = 'A';
-    
+
     if (seatMatch) {
       rowNum = parseInt(seatMatch[1], 10);
       seatLetter = seatMatch[2].toUpperCase();
@@ -361,7 +372,7 @@ export default function Flights() {
                   <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>{selectedFlight.fli_airline}</span>
                 </div>
               </FullPagePassHeader>
-              
+
               <FullPagePassBody>
                 <SplitLayout>
                   <LeftColumn>
@@ -402,11 +413,11 @@ export default function Flights() {
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas odlotu</span>
-                        <span className="val">{moment(selectedFlight.fli_dep_time).format("YYYY-MM-DD HH:mm")}</span>
+                        <span className="val">{moment.utc(selectedFlight.fli_dep_time).format("DD-MM-YYYY HH:mm")}</span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas przylotu</span>
-                        <span className="val">{moment(selectedFlight.fli_arr_time).format("YYYY-MM-DD HH:mm")}</span>
+                        <span className="val">{moment.utc(selectedFlight.fli_arr_time).format("DD-MM-YYYY HH:mm")}</span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Typ maszyny</span>
@@ -422,7 +433,7 @@ export default function Flights() {
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas lotu</span>
-                        <span className="val">{selectedFlight.fli_duration || "0:00"}</span>
+                        <span className="val">{formatDuration(selectedFlight.fli_duration)}</span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Opóźnienie</span>
@@ -503,11 +514,11 @@ export default function Flights() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </SearchInputWrapper>
-                  <ExpandFiltersButton 
-                    active={isFiltersExpanded} 
+                  <ExpandFiltersButton
+                    active={isFiltersExpanded}
                     onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
                   >
-                    <SlidersHorizontal size={16} /> 
+                    <SlidersHorizontal size={16} />
                     {isFiltersExpanded ? "Ukryj filtry" : "Filtry zaawansowane"}
                   </ExpandFiltersButton>
                   {(searchQuery || departureFilter || arrivalFilter || airlineFilter || aircraftFilter || dateFrom || dateTo || sortBy !== "dateDesc") && (
@@ -522,7 +533,7 @@ export default function Flights() {
                     <FiltersGrid>
                       <FilterInputGroup>
                         <label>Lotnisko odlotu</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="np. EPKK lub Kraków"
                           value={departureFilter}
@@ -532,7 +543,7 @@ export default function Flights() {
 
                       <FilterInputGroup>
                         <label>Lotnisko przylotu</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="np. EGLL lub Londyn"
                           value={arrivalFilter}
@@ -542,7 +553,7 @@ export default function Flights() {
 
                       <FilterInputGroup>
                         <label>Linia lotnicza</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="np. LOT, Lufthansa"
                           value={airlineFilter}
@@ -552,7 +563,7 @@ export default function Flights() {
 
                       <FilterInputGroup>
                         <label>Typ / Reg samolotu</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="np. Boeing, SP-LRA"
                           value={aircraftFilter}
@@ -562,7 +573,7 @@ export default function Flights() {
 
                       <FilterInputGroup>
                         <label>Data od</label>
-                        <input 
+                        <input
                           type="date"
                           value={dateFrom}
                           onChange={(e) => setDateFrom(e.target.value)}
@@ -571,7 +582,7 @@ export default function Flights() {
 
                       <FilterInputGroup>
                         <label>Data do</label>
-                        <input 
+                        <input
                           type="date"
                           value={dateTo}
                           onChange={(e) => setDateTo(e.target.value)}
@@ -580,8 +591,8 @@ export default function Flights() {
 
                       <FilterInputGroup style={{ gridColumn: "span 2" }}>
                         <label>Sortowanie</label>
-                        <select 
-                          value={sortBy} 
+                        <select
+                          value={sortBy}
                           onChange={(e) => setSortBy(e.target.value)}
                         >
                           <option value="dateDesc">Data: Najnowsze pierwsze</option>
@@ -629,7 +640,7 @@ export default function Flights() {
                       {filteredFlights.map((flight, idx) => (
                         <tr key={idx}>
                           <td data-label="Data">
-                            {moment(flight.fli_dep_time).format("YYYY-MM-DD")}
+                            {moment.utc(flight.fli_dep_time).format("YYYY-MM-DD")}
                           </td>
                           <td data-label="Lot" style={{ fontWeight: 700 }}>
                             {flight.fli_number}
@@ -647,7 +658,7 @@ export default function Flights() {
                           <td data-label="Samolot">
                             {flight.fli_aircraft_type || flight.fli_aircraft || "Brak"}
                           </td>
-                          <td data-label="Czas">{flight.fli_duration || "0:00"}</td>
+                          <td data-label="Czas">{formatDuration(flight.fli_duration)}</td>
                           <td data-label="Szczegóły">
                             <ActionButton onClick={() => setSelectedFlight(flight)}>
                               <Info size={14} /> Zobacz

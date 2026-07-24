@@ -10,6 +10,17 @@ import { Plane, MapPin, Compass, Search, Filter, RefreshCw, Globe, ArrowRight } 
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 
+const formatDuration = (durationStr) => {
+  if (!durationStr) return "00:00";
+  const parts = durationStr.split(":");
+  if (parts.length >= 2) {
+    const hours = parts[0].padStart(2, "0");
+    const minutes = parts[1].padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+  return durationStr;
+};
+
 // Helper component to auto-fit map bounds to show all flights
 function FitBounds({ flightsData }) {
   const map = useMap();
@@ -339,7 +350,7 @@ export default function MapPage() {
                                 </PopupRoute>
                                 <PopupDetail><strong>Linia:</strong> {flight.fli_airline || "Brak danych"}</PopupDetail>
                                 <PopupDetail><strong>Maszyna:</strong> {flight.fli_aircraft_type || flight.fli_aircraft || "Brak danych"}</PopupDetail>
-                                <PopupDetail><strong>Czas trwania:</strong> {flight.fli_duration || "0:00"}</PopupDetail>
+                                <PopupDetail><strong>Czas trwania:</strong> {formatDuration(flight.fli_duration)}</PopupDetail>
                               </PopupContainer>
                             </Popup>
                           </Polyline>
