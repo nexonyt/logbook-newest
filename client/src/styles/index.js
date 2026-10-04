@@ -338,11 +338,19 @@ export const CheckboxMark = styled.div`
 
 export const DashboardContent = styled.div`
   display: flex;
-  height: 100vh;
-  overflow-y: auto;
+  flex: 1;
+  min-height: 100vh;
   width: 100%;
   justify-content: center;
   flex-direction: column;
   align-items: center;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  @media (max-width: 800px) {
+    padding: 5rem 1rem 2.5rem 1rem;
+    justify-content: flex-start;
+  }
 `;
 
