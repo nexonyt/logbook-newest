@@ -5,7 +5,8 @@ import axios from "axios";
 import NavBar from "../components/Navbar";
 import AirportSearchInput from "../components/AirportSearchInput";
 import airports from "../data/airports.json";
-import { Plane, Calendar, MapPin, Info, ArrowRight, Clock } from "lucide-react";
+import { Plane, Calendar, MapPin, Info, ArrowRight, Clock, RotateCcw, Sparkles, AlertCircle } from "lucide-react";
+import { calculateFlightDuration } from "../utils/timeUtils";
 
 const initialPreFlightData = {
   userID: 0,
@@ -31,6 +32,7 @@ const initialPreFlightData = {
 
 export default function AddFlights() {
   const [preFlightData, setPreFlightData] = useState(initialPreFlightData);
+  const [isManualDuration, setIsDurationManual] = useState(false);
 
   useEffect(() => {
     try {
@@ -53,12 +55,78 @@ export default function AddFlights() {
     }
   }, []);
 
+  const depTz = airports[preFlightData.flightDestICAO]?.tz;
+  const arrTz = airports[preFlightData.flightArrivalICAO]?.tz;
+
+  const durationCalculation = calculateFlightDuration(
+    preFlightData.flightDateDeparture,
+    preFlightData.flightTimeDeparture,
+    depTz,
+    preFlightData.flightDateArrival,
+    preFlightData.flightTimeArrival,
+    arrTz
+  );
+
+  useEffect(() => {
+    if (isManualDuration) return;
+
+    if (durationCalculation && !durationCalculation.isNegative) {
+      setPreFlightData((prev) => {
+        if (prev.flightDuration !== durationCalculation.formatted) {
+          return {
+            ...prev,
+            flightDuration: durationCalculation.formatted,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [
+    preFlightData.flightDateDeparture,
+    preFlightData.flightTimeDeparture,
+    preFlightData.flightDestICAO,
+    preFlightData.flightDateArrival,
+    preFlightData.flightTimeArrival,
+    preFlightData.flightArrivalICAO,
+    isManualDuration,
+    durationCalculation,
+  ]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "flightDuration") {
+      setIsDurationManual(true);
+    }
+
+    if (name === "flightDateDeparture") {
+      setPreFlightData((prev) => ({
+        ...prev,
+        flightDateDeparture: value,
+        ...(!prev.flightDateArrival ? { flightDateArrival: value } : {}),
+      }));
+      return;
+    }
+
     setPreFlightData((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleAutoCalculate = () => {
+    if (durationCalculation && !durationCalculation.isNegative) {
+      setPreFlightData((prev) => ({
+        ...prev,
+        flightDuration: durationCalculation.formatted,
+      }));
+      setIsDurationManual(false);
+      toast.info(`Czas trwania przeliczony automatycznie: ${durationCalculation.formatted}`);
+    } else if (durationCalculation?.isNegative) {
+      toast.warning("Czas przylotu wypada przed odlotem w wybranych strefach czasowych.");
+    } else {
+      toast.info("Wprowadź daty, godziny oraz lotniska, aby obliczyć czas trwania lotu.");
+    }
   };
 
   const sendData = async () => {
@@ -109,6 +177,7 @@ export default function AddFlights() {
           ...initialPreFlightData,
           userID: prev.userID
         }));
+        setIsDurationManual(false);
       }
     } catch (err) {
       const errorMessage = err.response?.data || "Wystąpił błąd podczas zapisu.";
@@ -254,14 +323,59 @@ export default function AddFlights() {
           </AddFlightsDivRow>
           <AddFlightsDivRow>
             <DivContainerWithLabel>
-              <CustomLabel>Czas trwania lotu (np. 03:45)</CustomLabel>
-              <AddFlightsInput
-                type="text"
-                name="flightDuration"
-                value={preFlightData.flightDuration}
-                onChange={handleChange}
-                placeholder="HH:MM (np. 03:45)"
-              />
+              <LabelWithAction>
+                <CustomLabel style={{ margin: 0 }}>Czas trwania lotu (HH:MM)</CustomLabel>
+                {isManualDuration ? (
+                  <ModeBadge type="button" onClick={handleAutoCalculate} title="Kliknij, aby przeliczyć automatycznie ze stref">
+                    <Sparkles size={11} /> Wpis manualny (Przelicz auto)
+                  </ModeBadge>
+                ) : durationCalculation && !durationCalculation.isNegative ? (
+                  <ModeBadge type="button" $auto title="Czas obliczany automatycznie z uwzględnieniem stref">
+                    <Clock size={11} /> Auto ze stref
+                  </ModeBadge>
+                ) : null}
+              </LabelWithAction>
+              <DurationInputWrapper>
+                <AddFlightsInput
+                  type="text"
+                  name="flightDuration"
+                  value={preFlightData.flightDuration}
+                  onChange={handleChange}
+                  placeholder="HH:MM (np. 03:45)"
+                  style={isManualDuration ? { paddingRight: "2.75rem" } : {}}
+                />
+                {isManualDuration && (
+                  <RecalcButton type="button" onClick={handleAutoCalculate} title="Przywróć obliczanie automatyczne ze stref">
+                    <RotateCcw size={14} />
+                  </RecalcButton>
+                )}
+              </DurationInputWrapper>
+
+              {durationCalculation && !durationCalculation.isNegative ? (
+                <TzHelperText>
+                  <Clock size={12} style={{ flexShrink: 0 }} />
+                  <span>
+                    {isManualDuration ? "Obliczone ze stref: " : "Strefy: "}
+                    <strong>
+                      {durationCalculation.depTz || "Lokalna"} {durationCalculation.depOffset ? `(${durationCalculation.depOffset})` : ""}
+                    </strong>
+                    {" ➔ "}
+                    <strong>
+                      {durationCalculation.arrTz || "Lokalna"} {durationCalculation.arrOffset ? `(${durationCalculation.arrOffset})` : ""}
+                    </strong>
+                    {isManualDuration && ` (${durationCalculation.formatted})`}
+                  </span>
+                </TzHelperText>
+              ) : durationCalculation?.isNegative ? (
+                <TzWarningText>
+                  <AlertCircle size={12} style={{ flexShrink: 0 }} />
+                  <span>Uwaga: Czas przylotu wypada przed odlotem w tych strefach czasowych!</span>
+                </TzWarningText>
+              ) : (
+                <TzHintText>
+                  Czas obliczy się automatycznie po wprowadzeniu lotnisk, dat i godzin.
+                </TzHintText>
+              )}
             </DivContainerWithLabel>
             <DivContainerWithLabel>
               <CustomLabel>Opóźnienie lotu (jeśli występuje)</CustomLabel>
@@ -543,4 +657,84 @@ const SubmitButton = styled.button`
   &:active {
     transform: translateY(0);
   }
+`;
+
+const LabelWithAction = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const ModeBadge = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: ${(props) => (props.$auto ? "#ecfdf5" : "#f1f5f9")};
+  color: ${(props) => (props.$auto ? "#059669" : "#475569")};
+  border: 1px solid ${(props) => (props.$auto ? "#a7f3d0" : "#cbd5e1")};
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => (props.$auto ? "#d1fae5" : "#e2e8f0")};
+  }
+`;
+
+const DurationInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+const RecalcButton = styled.button`
+  position: absolute;
+  right: 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+`;
+
+const TzHelperText = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #059669;
+  margin-top: 0.4rem;
+  line-height: 1.3;
+`;
+
+const TzWarningText = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #dc2626;
+  margin-top: 0.4rem;
+  line-height: 1.3;
+`;
+
+const TzHintText = styled.div`
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.4rem;
+  font-style: italic;
 `;

@@ -7,7 +7,15 @@ import "leaflet/dist/leaflet.css";
 import worldCountries from "../data/countries.json";
 import airports from "../data/airports.json";
 import ReactCountryFlag from "react-country-flag";
-import { Globe, Plus, Trash2, Search, Info, PlaneTakeoff, Compass } from "lucide-react";
+import {
+  Globe,
+  Plus,
+  Trash2,
+  Search,
+  Info,
+  PlaneTakeoff,
+  Compass,
+} from "lucide-react";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
@@ -21,17 +29,17 @@ function FitBounds({ visitedCodes }) {
 
     // Build a list of bounding boxes or points representing the visited countries
     const coords = [];
-    worldCountries.features.forEach(feature => {
+    worldCountries.features.forEach((feature) => {
       const code = feature.properties?.iso_a2 || feature.properties?.ISO_A2;
       if (code && visitedCodes.includes(code)) {
         // Collect coordinates to calculate a rough bounding box
         if (feature.geometry?.type === "Polygon") {
-          feature.geometry.coordinates[0].forEach(coord => {
+          feature.geometry.coordinates[0].forEach((coord) => {
             coords.push([coord[1], coord[0]]); // Leaflet wants [lat, lon]
           });
         } else if (feature.geometry?.type === "MultiPolygon") {
-          feature.geometry.coordinates.forEach(polygon => {
-            polygon[0].forEach(coord => {
+          feature.geometry.coordinates.forEach((polygon) => {
+            polygon[0].forEach((coord) => {
               coords.push([coord[1], coord[0]]);
             });
           });
@@ -51,10 +59,14 @@ function FitBounds({ visitedCodes }) {
 const allWorldCountries = (() => {
   const list = [];
   const seen = new Set();
-  
-  worldCountries.features.forEach(f => {
+
+  worldCountries.features.forEach((f) => {
     const code = f.properties?.iso_a2 || f.properties?.ISO_A2;
-    const name = f.properties?.name || f.properties?.NAME || f.properties?.NAME_LONG || "";
+    const name =
+      f.properties?.name ||
+      f.properties?.NAME_PL ||
+      f.properties?.NAME_LONG ||
+      "";
     if (code && name && !seen.has(code)) {
       seen.add(code);
       list.push({ code, name });
@@ -69,7 +81,7 @@ export default function VisitedCountries() {
   const [customCountries, setCustomCountries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Custom Addition State
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -100,20 +112,27 @@ export default function VisitedCountries() {
 
       // Extract unique countries visited via flights
       const fCountries = new Set();
-      flightsData.forEach(flight => {
-        if (flight.fli_dest_air_icao && airports[flight.fli_dest_air_icao]?.country) {
+      flightsData.forEach((flight) => {
+        if (
+          flight.fli_dest_air_icao &&
+          airports[flight.fli_dest_air_icao]?.country
+        ) {
           fCountries.add(airports[flight.fli_dest_air_icao].country);
         }
-        if (flight.fli_arr_air_icao && airports[flight.fli_arr_air_icao]?.country) {
+        if (
+          flight.fli_arr_air_icao &&
+          airports[flight.fli_arr_air_icao]?.country
+        ) {
           fCountries.add(airports[flight.fli_arr_air_icao].country);
         }
       });
       setFlightsCountries(Array.from(fCountries));
 
       // Fetch custom visited countries (visited without flights)
-      const customResponse = await axios.post("/get-visited-countries", { userID });
+      const customResponse = await axios.post("/get-visited-countries", {
+        userID,
+      });
       setCustomCountries(customResponse.data);
-
     } catch (err) {
       console.error("Błąd wczytywania danych państw:", err);
       setError("Nie udało się załadować danych o odwiedzonych krajach.");
@@ -128,9 +147,12 @@ export default function VisitedCountries() {
 
   const handleAddCountry = async () => {
     if (!selectedCountry) return;
-    
+
     // Check if already visited
-    if (flightsCountries.includes(selectedCountry.code) || customCountries.includes(selectedCountry.code)) {
+    if (
+      flightsCountries.includes(selectedCountry.code) ||
+      customCountries.includes(selectedCountry.code)
+    ) {
       toast.info("Ten kraj jest już zaznaczony jako odwiedzony!");
       setSelectedCountry(null);
       setSearchQuery("");
@@ -142,10 +164,10 @@ export default function VisitedCountries() {
       const userID = getUserID();
       await axios.post("/add-visited-country", {
         userID,
-        countryCode: selectedCountry.code
+        countryCode: selectedCountry.code,
       });
-      
-      setCustomCountries(prev => [...prev, selectedCountry.code]);
+
+      setCustomCountries((prev) => [...prev, selectedCountry.code]);
       toast.success(`Dodano ${selectedCountry.name} do listy!`);
       setSelectedCountry(null);
       setSearchQuery("");
@@ -158,16 +180,21 @@ export default function VisitedCountries() {
   };
 
   const handleRemoveCountry = async (code, name) => {
-    if (!window.confirm(`Czy na pewno chcesz usunąć ${name} z listy odwiedzonych krajów?`)) return;
+    if (
+      !window.confirm(
+        `Czy na pewno chcesz usunąć ${name} z listy odwiedzonych krajów?`,
+      )
+    )
+      return;
 
     try {
       const userID = getUserID();
       await axios.post("/remove-visited-country", {
         userID,
-        countryCode: code
+        countryCode: code,
       });
-      
-      setCustomCountries(prev => prev.filter(c => c !== code));
+
+      setCustomCountries((prev) => prev.filter((c) => c !== code));
       toast.info(`Usunięto ${name} z listy.`);
     } catch (err) {
       console.error("Błąd podczas usuwania kraju:", err);
@@ -176,17 +203,22 @@ export default function VisitedCountries() {
   };
 
   // Combine both lists for polygon highlighting
-  const allVisitedCodes = Array.from(new Set([...flightsCountries, ...customCountries]));
+  const allVisitedCodes = Array.from(
+    new Set([...flightsCountries, ...customCountries]),
+  );
 
   // Auto-complete suggestions logic
-  const suggestions = allWorldCountries.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !flightsCountries.includes(c.code) &&
-    !customCountries.includes(c.code)
-  ).slice(0, 5);
+  const suggestions = allWorldCountries
+    .filter(
+      (c) =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !flightsCountries.includes(c.code) &&
+        !customCountries.includes(c.code),
+    )
+    .slice(0, 5);
 
   const getCountryName = (code) => {
-    return allWorldCountries.find(c => c.code === code)?.name || code;
+    return allWorldCountries.find((c) => c.code === code)?.name || code;
   };
 
   return (
@@ -195,12 +227,16 @@ export default function VisitedCountries() {
       <ContentWrapper>
         <MapContent>
           <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-            
             {/* Header */}
             <HeaderBlock>
               <div>
-                <Title><Globe size={28} /> Odwiedzone Kraje</Title>
-                <Subtitle>Mapa świata przedstawiająca kraje odwiedzone samolotem oraz wpisane ręcznie</Subtitle>
+                <Title>
+                  <Globe size={28} /> Odwiedzone Kraje
+                </Title>
+                <Subtitle>
+                  Mapa świata przedstawiająca kraje odwiedzone samolotem oraz
+                  wpisane ręcznie
+                </Subtitle>
               </div>
             </HeaderBlock>
 
@@ -212,7 +248,13 @@ export default function VisitedCountries() {
             )}
 
             {error && (
-              <MessageContainer style={{ color: "#ef4444", borderColor: "#fecaca", background: "#fef2f2" }}>
+              <MessageContainer
+                style={{
+                  color: "#ef4444",
+                  borderColor: "#fecaca",
+                  background: "#fef2f2",
+                }}
+              >
                 {error}
               </MessageContainer>
             )}
@@ -220,46 +262,64 @@ export default function VisitedCountries() {
             {!loading && !error && (
               <FadeIn>
                 <SplitLayout>
-                  
                   {/* Left Column: Visual Map */}
                   <LeftColumn>
                     <MapOuterWrapper>
-                      <MapContainer 
-                        center={[20.0, 0.0]} 
-                        zoom={2} 
-                        style={{ height: "100%", width: "100%", borderRadius: "16px", overflow: "hidden" }}
+                      <MapContainer
+                        center={[20.0, 0.0]}
+                        zoom={2}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          borderRadius: "16px",
+                          overflow: "hidden",
+                        }}
                       >
                         <TileLayer
-                          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         />
-                        
+
                         {/* Auto fit map to visited countries */}
                         <FitBounds visitedCodes={allVisitedCodes} />
 
                         {/* World Countries Polygon highlights */}
-                        <GeoJSON 
+                        <GeoJSON
                           key={allVisitedCodes.join("-")} // Force re-render when list updates
-                          data={worldCountries} 
+                          data={worldCountries}
                           style={(feature) => {
-                            const code = feature.properties?.iso_a2 || feature.properties?.ISO_A2;
-                            const isVisited = code && allVisitedCodes.includes(code);
-                            
+                            const code =
+                              feature.properties?.iso_a2 ||
+                              feature.properties?.ISO_A2;
+                            const isVisited =
+                              code && allVisitedCodes.includes(code);
+
                             return {
-                              fillColor: '#10b981',
+                              fillColor: "#10b981",
                               fillOpacity: isVisited ? 0.35 : 0.0,
-                              color: isVisited ? '#059669' : 'transparent',
-                              weight: isVisited ? 1.5 : 0
+                              color: isVisited ? "#059669" : "transparent",
+                              weight: isVisited ? 1.5 : 0,
                             };
                           }}
                           onEachFeature={(feature, layer) => {
-                            const name = feature.properties?.name || feature.properties?.NAME || feature.properties?.NAME_LONG || "";
-                            const code = feature.properties?.iso_a2 || feature.properties?.ISO_A2;
-                            const isVisited = code && allVisitedCodes.includes(code);
-                            
+                            const name =
+                              feature.properties?.name ||
+                              feature.properties?.NAME ||
+                              feature.properties?.NAME_LONG ||
+                              "";
+                            const code =
+                              feature.properties?.iso_a2 ||
+                              feature.properties?.ISO_A2;
+                            const isVisited =
+                              code && allVisitedCodes.includes(code);
+
                             if (isVisited) {
-                              const method = flightsCountries.includes(code) ? "odwiedzony samolotem" : "odwiedzony bez lotu";
-                              layer.bindPopup(`<strong>${name}</strong><br/>Kraj ${method}!`);
+                              const method = flightsCountries.includes(code)
+                                ? "odwiedzony samolotem"
+                                : "odwiedzony bez lotu";
+                              layer.bindPopup(
+                                `<strong>${name}</strong><br/>Kraj ${method}!`,
+                              );
                             } else {
                               layer.bindPopup(`<strong>${name}</strong>`);
                             }
@@ -271,10 +331,11 @@ export default function VisitedCountries() {
 
                   {/* Right Column: Sidebar Control Panel */}
                   <RightColumn>
-                    
                     {/* Add custom country widget */}
                     <ControlCard>
-                      <CardTitle><Plus size={16} /> Dodaj kraj (odwiedzony bez lotów)</CardTitle>
+                      <CardTitle>
+                        <Plus size={16} /> Dodaj kraj (odwiedzony bez lotów)
+                      </CardTitle>
                       <FormGroup>
                         <AutocompleteWrapper>
                           <Search size={16} className="search-icon" />
@@ -288,27 +349,35 @@ export default function VisitedCountries() {
                               setShowSuggestions(true);
                             }}
                             onFocus={() => setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                            onBlur={() =>
+                              setTimeout(() => setShowSuggestions(false), 200)
+                            }
                           />
-                          {showSuggestions && searchQuery.trim() !== "" && suggestions.length > 0 && (
-                            <SuggestionsList>
-                              {suggestions.map((c) => (
-                                <SuggestionItem 
-                                  key={c.code}
-                                  onMouseDown={() => {
-                                    setSelectedCountry(c);
-                                    setSearchQuery(c.name);
-                                    setShowSuggestions(false);
-                                  }}
-                                >
-                                  <ReactCountryFlag countryCode={c.code} svg style={{ marginRight: "8px" }} />
-                                  {c.name}
-                                </SuggestionItem>
-                              ))}
-                            </SuggestionsList>
-                          )}
+                          {showSuggestions &&
+                            searchQuery.trim() !== "" &&
+                            suggestions.length > 0 && (
+                              <SuggestionsList>
+                                {suggestions.map((c) => (
+                                  <SuggestionItem
+                                    key={c.code}
+                                    onMouseDown={() => {
+                                      setSelectedCountry(c);
+                                      setSearchQuery(c.name);
+                                      setShowSuggestions(false);
+                                    }}
+                                  >
+                                    <ReactCountryFlag
+                                      countryCode={c.code}
+                                      svg
+                                      style={{ marginRight: "8px" }}
+                                    />
+                                    {c.name}
+                                  </SuggestionItem>
+                                ))}
+                              </SuggestionsList>
+                            )}
                         </AutocompleteWrapper>
-                        <AddBtn 
+                        <AddBtn
                           disabled={!selectedCountry || adding}
                           onClick={handleAddCountry}
                         >
@@ -319,18 +388,24 @@ export default function VisitedCountries() {
 
                     {/* Stats overview */}
                     <ControlCard>
-                      <CardTitle><Compass size={16} /> Statystyki geograficzne</CardTitle>
+                      <CardTitle>
+                        <Compass size={16} /> Statystyki geograficzne
+                      </CardTitle>
                       <StatsContainer>
                         <StatBadge>
                           <span className="num">{allVisitedCodes.length}</span>
                           <span className="label">Kraje ogółem</span>
                         </StatBadge>
                         <StatBadge>
-                          <span className="num" style={{ color: "#3b82f6" }}>{flightsCountries.length}</span>
+                          <span className="num" style={{ color: "#3b82f6" }}>
+                            {flightsCountries.length}
+                          </span>
                           <span className="label">Przez loty</span>
                         </StatBadge>
                         <StatBadge>
-                          <span className="num" style={{ color: "#10b981" }}>{customCountries.length}</span>
+                          <span className="num" style={{ color: "#10b981" }}>
+                            {customCountries.length}
+                          </span>
                           <span className="label">Wpisy ręczne</span>
                         </StatBadge>
                       </StatsContainer>
@@ -338,20 +413,48 @@ export default function VisitedCountries() {
 
                     {/* Visited without flights list */}
                     <ControlCard>
-                      <CardTitle><Globe size={16} style={{ color: "#10b981" }} /> Odwiedzone bez lotów ({customCountries.length})</CardTitle>
+                      <CardTitle>
+                        <Globe size={16} style={{ color: "#10b981" }} />{" "}
+                        Odwiedzone bez lotów ({customCountries.length})
+                      </CardTitle>
                       {customCountries.length === 0 ? (
-                        <EmptyMessage>Brak ręcznie wpisanych państw.</EmptyMessage>
+                        <EmptyMessage>
+                          Brak ręcznie wpisanych państw.
+                        </EmptyMessage>
                       ) : (
                         <CountryList>
-                          {customCountries.map(code => {
+                          {customCountries.map((code) => {
                             const name = getCountryName(code);
                             return (
                               <CountryItem key={code}>
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                  <ReactCountryFlag countryCode={code} svg style={{ fontSize: "1.25em", marginRight: "8px" }} />
-                                  <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{name}</span>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <ReactCountryFlag
+                                    countryCode={code}
+                                    svg
+                                    style={{
+                                      fontSize: "1.25em",
+                                      marginRight: "8px",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontWeight: 600,
+                                      fontSize: "0.9rem",
+                                    }}
+                                  >
+                                    {name}
+                                  </span>
                                 </div>
-                                <DeleteBtn onClick={() => handleRemoveCountry(code, name)}>
+                                <DeleteBtn
+                                  onClick={() =>
+                                    handleRemoveCountry(code, name)
+                                  }
+                                >
                                   <Trash2 size={14} />
                                 </DeleteBtn>
                               </CountryItem>
@@ -363,20 +466,60 @@ export default function VisitedCountries() {
 
                     {/* Visited via flights list */}
                     <ControlCard>
-                      <CardTitle><PlaneTakeoff size={16} style={{ color: "#3b82f6" }} /> Odwiedzone korytarzami lotów ({flightsCountries.length})</CardTitle>
+                      <CardTitle>
+                        <PlaneTakeoff size={16} style={{ color: "#3b82f6" }} />{" "}
+                        Odwiedzone przez loty ({flightsCountries.length})
+                      </CardTitle>
                       {flightsCountries.length === 0 ? (
-                        <EmptyMessage>Brak lotów w bazie uniemożliwia automatyczne zliczenie.</EmptyMessage>
+                        <EmptyMessage>
+                          Brak lotów w bazie uniemożliwia automatyczne
+                          zliczenie.
+                        </EmptyMessage>
                       ) : (
                         <CountryList>
-                          {flightsCountries.map(code => {
+                          {flightsCountries.map((code) => {
                             const name = getCountryName(code);
                             return (
-                              <CountryItem key={code} style={{ background: "#f8fafc", borderColor: "#f1f5f9" }}>
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                  <ReactCountryFlag countryCode={code} svg style={{ fontSize: "1.25em", marginRight: "8px" }} />
-                                  <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{name}</span>
+                              <CountryItem
+                                key={code}
+                                style={{
+                                  background: "#f8fafc",
+                                  borderColor: "#f1f5f9",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <ReactCountryFlag
+                                    countryCode={code}
+                                    svg
+                                    style={{
+                                      fontSize: "1.25em",
+                                      marginRight: "8px",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontWeight: 600,
+                                      fontSize: "0.9rem",
+                                    }}
+                                  >
+                                    {name}
+                                  </span>
                                 </div>
-                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#3b82f6", background: "#dbeafe", padding: "2px 8px", borderRadius: "8px" }}>
+                                <span
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    fontWeight: 700,
+                                    color: "#3b82f6",
+                                    background: "#dbeafe",
+                                    padding: "2px 8px",
+                                    borderRadius: "8px",
+                                  }}
+                                >
                                   LOTY
                                 </span>
                               </CountryItem>
@@ -385,12 +528,10 @@ export default function VisitedCountries() {
                         </CountryList>
                       )}
                     </ControlCard>
-
                   </RightColumn>
                 </SplitLayout>
               </FadeIn>
             )}
-
           </div>
         </MapContent>
       </ContentWrapper>
@@ -571,7 +712,7 @@ const SuggestionsList = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   margin-top: 4px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   z-index: 1000;
   max-height: 200px;
   overflow-y: auto;

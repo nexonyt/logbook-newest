@@ -3,18 +3,47 @@ import NavBar from "../components/Navbar";
 import axios from "axios";
 import moment from "moment";
 import styled, { keyframes } from "styled-components";
-import { Plane, Clock, CheckCircle, MapPin, Calendar, Info, X, ArrowLeft, Armchair, SlidersHorizontal, RefreshCw, Search } from "lucide-react";
+import {
+  Plane,
+  Clock,
+  CheckCircle,
+  MapPin,
+  Calendar,
+  Info,
+  X,
+  ArrowLeft,
+  Armchair,
+  SlidersHorizontal,
+  RefreshCw,
+  Search,
+} from "lucide-react";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 import airports from "../data/airports.json";
 
 // Leaflet imports
-import { MapContainer, TileLayer, CircleMarker, Polyline, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  CircleMarker,
+  Polyline,
+  Popup,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 // SVG Armchair Icon Helper
 const ArmchairIcon = ({ selected }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill={selected ? "#ffffff" : "#64748b"} stroke={selected ? "#2563eb" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill={selected ? "#ffffff" : "#64748b"}
+    stroke={selected ? "#2563eb" : "#94a3b8"}
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ display: "block" }}
+  >
     <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
     <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2Z" />
     <path d="M6 18v2" />
@@ -67,11 +96,16 @@ export default function Flights() {
 
   const getSortName = (key) => {
     switch (key) {
-      case "dateAsc": return "Najstarsze pierwsze";
-      case "durationDesc": return "Czas: najdłuższe";
-      case "durationAsc": return "Czas: najkrótsze";
-      case "delayDesc": return "Największe opóźnienie";
-      default: return "Najnowsze pierwsze";
+      case "dateAsc":
+        return "Najstarsze pierwsze";
+      case "durationDesc":
+        return "Czas: najdłuższe";
+      case "durationAsc":
+        return "Czas: najkrótsze";
+      case "delayDesc":
+        return "Największe opóźnienie";
+      default:
+        return "Najnowsze pierwsze";
     }
   };
 
@@ -93,57 +127,71 @@ export default function Flights() {
     // General text search
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      result = result.filter(f =>
-        (f.fli_number && f.fli_number.toLowerCase().includes(q)) ||
-        (f.fli_airline && f.fli_airline.toLowerCase().includes(q)) ||
-        (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
-        (f.fli_aircraft_type && f.fli_aircraft_type.toLowerCase().includes(q)) ||
-        (f.fli_details && f.fli_details.toLowerCase().includes(q))
+      result = result.filter(
+        (f) =>
+          (f.fli_number && f.fli_number.toLowerCase().includes(q)) ||
+          (f.fli_airline && f.fli_airline.toLowerCase().includes(q)) ||
+          (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
+          (f.fli_aircraft_type &&
+            f.fli_aircraft_type.toLowerCase().includes(q)) ||
+          (f.fli_details && f.fli_details.toLowerCase().includes(q)),
       );
     }
 
     // Departure Airport
     if (departureFilter.trim() !== "") {
       const q = departureFilter.toLowerCase();
-      result = result.filter(f =>
-        (f.fli_dest_air_icao && f.fli_dest_air_icao.toLowerCase().includes(q)) ||
-        (f.fli_dest_air_iata && f.fli_dest_air_iata.toLowerCase().includes(q)) ||
-        (airports[f.fli_dest_air_icao]?.name && airports[f.fli_dest_air_icao].name.toLowerCase().includes(q)) ||
-        (airports[f.fli_dest_air_icao]?.city && airports[f.fli_dest_air_icao].city.toLowerCase().includes(q))
+      result = result.filter(
+        (f) =>
+          (f.fli_dest_air_icao &&
+            f.fli_dest_air_icao.toLowerCase().includes(q)) ||
+          (f.fli_dest_air_iata &&
+            f.fli_dest_air_iata.toLowerCase().includes(q)) ||
+          (airports[f.fli_dest_air_icao]?.name &&
+            airports[f.fli_dest_air_icao].name.toLowerCase().includes(q)) ||
+          (airports[f.fli_dest_air_icao]?.city &&
+            airports[f.fli_dest_air_icao].city.toLowerCase().includes(q)),
       );
     }
 
     // Arrival Airport
     if (arrivalFilter.trim() !== "") {
       const q = arrivalFilter.toLowerCase();
-      result = result.filter(f =>
-        (f.fli_arr_air_icao && f.fli_arr_air_icao.toLowerCase().includes(q)) ||
-        (f.fli_arr_air_iata && f.fli_arr_air_iata.toLowerCase().includes(q)) ||
-        (airports[f.fli_arr_air_icao]?.name && airports[f.fli_arr_air_icao].name.toLowerCase().includes(q)) ||
-        (airports[f.fli_arr_air_icao]?.city && airports[f.fli_arr_air_icao].city.toLowerCase().includes(q))
+      result = result.filter(
+        (f) =>
+          (f.fli_arr_air_icao &&
+            f.fli_arr_air_icao.toLowerCase().includes(q)) ||
+          (f.fli_arr_air_iata &&
+            f.fli_arr_air_iata.toLowerCase().includes(q)) ||
+          (airports[f.fli_arr_air_icao]?.name &&
+            airports[f.fli_arr_air_icao].name.toLowerCase().includes(q)) ||
+          (airports[f.fli_arr_air_icao]?.city &&
+            airports[f.fli_arr_air_icao].city.toLowerCase().includes(q)),
       );
     }
 
     // Airline
     if (airlineFilter.trim() !== "") {
       const q = airlineFilter.toLowerCase();
-      result = result.filter(f =>
-        f.fli_airline && f.fli_airline.toLowerCase().includes(q)
+      result = result.filter(
+        (f) => f.fli_airline && f.fli_airline.toLowerCase().includes(q),
       );
     }
 
     // Aircraft Type/Reg
     if (aircraftFilter.trim() !== "") {
       const q = aircraftFilter.toLowerCase();
-      result = result.filter(f =>
-        (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
-        (f.fli_aircraft_type && f.fli_aircraft_type.toLowerCase().includes(q))
+      result = result.filter(
+        (f) =>
+          (f.fli_aircraft && f.fli_aircraft.toLowerCase().includes(q)) ||
+          (f.fli_aircraft_type &&
+            f.fli_aircraft_type.toLowerCase().includes(q)),
       );
     }
 
     // Date From
     if (dateFrom !== "") {
-      result = result.filter(f => {
+      result = result.filter((f) => {
         const depDate = moment.utc(f.fli_dep_time).format("YYYY-MM-DD");
         return depDate >= dateFrom;
       });
@@ -151,7 +199,7 @@ export default function Flights() {
 
     // Date To
     if (dateTo !== "") {
-      result = result.filter(f => {
+      result = result.filter((f) => {
         const depDate = moment.utc(f.fli_dep_time).format("YYYY-MM-DD");
         return depDate <= dateTo;
       });
@@ -181,10 +229,16 @@ export default function Flights() {
         return new Date(a.fli_dep_time) - new Date(b.fli_dep_time);
       }
       if (sortBy === "durationDesc") {
-        return getDurationSeconds(b.fli_duration) - getDurationSeconds(a.fli_duration);
+        return (
+          getDurationSeconds(b.fli_duration) -
+          getDurationSeconds(a.fli_duration)
+        );
       }
       if (sortBy === "durationAsc") {
-        return getDurationSeconds(a.fli_duration) - getDurationSeconds(b.fli_duration);
+        return (
+          getDurationSeconds(a.fli_duration) -
+          getDurationSeconds(b.fli_duration)
+        );
       }
       if (sortBy === "delayDesc") {
         return getDelaySeconds(b.fli_delay) - getDelaySeconds(a.fli_delay);
@@ -193,7 +247,17 @@ export default function Flights() {
     });
 
     setFilteredFlights(result);
-  }, [searchQuery, departureFilter, arrivalFilter, airlineFilter, aircraftFilter, dateFrom, dateTo, sortBy, flights]);
+  }, [
+    searchQuery,
+    departureFilter,
+    arrivalFilter,
+    airlineFilter,
+    aircraftFilter,
+    dateFrom,
+    dateTo,
+    sortBy,
+    flights,
+  ]);
 
   useEffect(() => {
     const fetchFlights = async () => {
@@ -228,8 +292,19 @@ export default function Flights() {
     if (!seat) {
       return (
         <CabinContainer>
-          <CabinTitle><Armchair size={18} /> Układ miejsc w kabinie</CabinTitle>
-          <div style={{ padding: "2rem", background: "#f8fafc", borderRadius: "16px", color: "#64748b", textAlign: "center", border: "1px dashed #e2e8f0" }}>
+          <CabinTitle>
+            <Armchair size={18} /> Układ miejsc w kabinie
+          </CabinTitle>
+          <div
+            style={{
+              padding: "2rem",
+              background: "#f8fafc",
+              borderRadius: "16px",
+              color: "#64748b",
+              textAlign: "center",
+              border: "1px dashed #e2e8f0",
+            }}
+          >
             Brak zdefiniowanego miejsca dla tego lotu.
           </div>
         </CabinContainer>
@@ -238,7 +313,7 @@ export default function Flights() {
 
     const seatMatch = seat.match(/^(\d+)([A-F])$/i);
     let rowNum = 12;
-    let seatLetter = 'A';
+    let seatLetter = "A";
 
     if (seatMatch) {
       rowNum = parseInt(seatMatch[1], 10);
@@ -258,17 +333,19 @@ export default function Flights() {
     }
     if (rows.length === 0) rows.push(rowNum);
 
-    const cols = ['A', 'B', 'C', 'AISLE', 'D', 'E', 'F'];
+    const cols = ["A", "B", "C", "AISLE", "D", "E", "F"];
 
     return (
       <CabinContainer>
-        <CabinTitle><Armchair size={18} /> Wizualizacja kabiny (rząd {rowNum})</CabinTitle>
+        <CabinTitle>
+          <Armchair size={18} /> Wizualizacja kabiny (rząd {rowNum})
+        </CabinTitle>
         <SeatGrid>
           {/* Header letters */}
           <SeatRow>
             <RowLabel></RowLabel>
             {cols.map((c, idx) => {
-              if (c === 'AISLE') return <AisleSpace key={idx} />;
+              if (c === "AISLE") return <AisleSpace key={idx} />;
               return <SeatHeaderLabel key={idx}>{c}</SeatHeaderLabel>;
             })}
           </SeatRow>
@@ -278,7 +355,8 @@ export default function Flights() {
             <SeatRow key={r}>
               <RowLabel>{r}</RowLabel>
               {cols.map((c, idx) => {
-                if (c === 'AISLE') return <AisleLabel key={idx}>Aisle</AisleLabel>;
+                if (c === "AISLE")
+                  return <AisleLabel key={idx}>Aisle</AisleLabel>;
                 const isSelected = r === rowNum && c === seatLetter;
                 return (
                   <SeatButton
@@ -294,8 +372,13 @@ export default function Flights() {
           ))}
         </SeatGrid>
         <CabinLegend>
-          <LegendItem><LegendIndicator color="#dbeafe" border="#2563eb" /> Twoje miejsce ({seat})</LegendItem>
-          <LegendItem><LegendIndicator color="#f1f5f9" border="#cbd5e1" /> Wolne miejsce</LegendItem>
+          <LegendItem>
+            <LegendIndicator color="#dbeafe" border="#2563eb" /> Twoje miejsce (
+            {seat})
+          </LegendItem>
+          <LegendItem>
+            <LegendIndicator color="#f1f5f9" border="#cbd5e1" /> Wolne miejsce
+          </LegendItem>
         </CabinLegend>
       </CabinContainer>
     );
@@ -310,38 +393,93 @@ export default function Flights() {
     const arrLat = arrAirport?.lat;
     const arrLon = arrAirport?.lon;
 
-    const hasMapCoords = depLat != null && depLon != null && arrLat != null && arrLon != null;
+    const hasMapCoords =
+      depLat != null && depLon != null && arrLat != null && arrLon != null;
     const centerLat = hasMapCoords ? (depLat + arrLat) / 2 : 52.0;
     const centerLon = hasMapCoords ? (depLon + arrLon) / 2 : 19.0;
 
     return (
       <MapWrapper>
-        <h3><MapPin size={18} /> Mapa trasy lotu</h3>
+        <h3>
+          <MapPin size={18} /> Mapa trasy lotu
+        </h3>
         {hasMapCoords ? (
-          <div style={{ height: "300px", width: "100%", borderRadius: "16px", overflow: "hidden", border: "1px solid #e2e8f0" }}>
-            <MapContainer center={[centerLat, centerLon]} zoom={4} style={{ height: "100%", width: "100%" }}>
+          <div
+            style={{
+              height: "300px",
+              width: "100%",
+              borderRadius: "16px",
+              overflow: "hidden",
+              border: "1px solid #e2e8f0",
+            }}
+          >
+            <MapContainer
+              center={[centerLat, centerLon]}
+              zoom={4}
+              style={{ height: "100%", width: "100%" }}
+            >
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              <CircleMarker center={[depLat, depLon]} radius={8} pathOptions={{ color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.8, weight: 2 }}>
+              <CircleMarker
+                center={[depLat, depLon]}
+                radius={8}
+                pathOptions={{
+                  color: "#2563eb",
+                  fillColor: "#3b82f6",
+                  fillOpacity: 0.8,
+                  weight: 2,
+                }}
+              >
                 <Popup>
-                  <strong>Odlot:</strong> {selectedFlight.fli_dest_air_iata || selectedFlight.fli_dest_air_icao}<br />
+                  <strong>Odlot:</strong>{" "}
+                  {selectedFlight.fli_dest_air_iata ||
+                    selectedFlight.fli_dest_air_icao}
+                  <br />
                   {depAirport.name}
                 </Popup>
               </CircleMarker>
-              <CircleMarker center={[arrLat, arrLon]} radius={8} pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.8, weight: 2 }}>
+              <CircleMarker
+                center={[arrLat, arrLon]}
+                radius={8}
+                pathOptions={{
+                  color: "#10b981",
+                  fillColor: "#10b981",
+                  fillOpacity: 0.8,
+                  weight: 2,
+                }}
+              >
                 <Popup>
-                  <strong>Przylot:</strong> {selectedFlight.fli_arr_air_iata || selectedFlight.fli_arr_air_icao}<br />
+                  <strong>Przylot:</strong>{" "}
+                  {selectedFlight.fli_arr_air_iata ||
+                    selectedFlight.fli_arr_air_icao}
+                  <br />
                   {arrAirport.name}
                 </Popup>
               </CircleMarker>
-              <Polyline positions={[[depLat, depLon], [arrLat, arrLon]]} pathOptions={{ color: '#6366f1', weight: 3, dashArray: '6, 8' }} />
+              <Polyline
+                positions={[
+                  [depLat, depLon],
+                  [arrLat, arrLon],
+                ]}
+                pathOptions={{ color: "#6366f1", weight: 3, dashArray: "6, 8" }}
+              />
             </MapContainer>
           </div>
         ) : (
-          <div style={{ padding: "3.5rem 1.5rem", background: "#f8fafc", borderRadius: "16px", color: "#64748b", textAlign: "center", border: "1px dashed #e2e8f0" }}>
-            Nie można wyświetlić trasy lotu – brak współrzędnych GPS dla lotnisk w bazie danych.
+          <div
+            style={{
+              padding: "3.5rem 1.5rem",
+              background: "#f8fafc",
+              borderRadius: "16px",
+              color: "#64748b",
+              textAlign: "center",
+              border: "1px dashed #e2e8f0",
+            }}
+          >
+            Nie można wyświetlić trasy lotu – brak współrzędnych GPS dla lotnisk
+            w bazie danych.
           </div>
         )}
       </MapWrapper>
@@ -361,15 +499,29 @@ export default function Flights() {
             <FullPageBoardingPass>
               <FullPagePassHeader>
                 <HeaderTitleBlock>
-                  <Plane size={24} style={{ transform: "rotate(45deg)", color: "#60a5fa" }} />
+                  <Plane
+                    size={24}
+                    style={{ transform: "rotate(45deg)", color: "#60a5fa" }}
+                  />
                   <div>
                     <HeaderTitle>KARTA PODSUMOWANIA LOTU</HeaderTitle>
-                    <HeaderSubtitle>SZCZEGÓŁOWY LOGBOOK PILOTA</HeaderSubtitle>
+                    {/* <HeaderSubtitle>SZCZEGÓŁOWY LOGBOOK PILOTA</HeaderSubtitle> */}
                   </div>
                 </HeaderTitleBlock>
                 <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: "1.1rem", fontWeight: 700, display: "block", color: "#60a5fa" }}>{selectedFlight.fli_number}</span>
-                  <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>{selectedFlight.fli_airline}</span>
+                  <span
+                    style={{
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      display: "block",
+                      color: "#60a5fa",
+                    }}
+                  >
+                    {selectedFlight.fli_number}
+                  </span>
+                  <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+                    {selectedFlight.fli_airline}
+                  </span>
                 </div>
               </FullPagePassHeader>
 
@@ -378,22 +530,35 @@ export default function Flights() {
                   <LeftColumn>
                     <FullPageAirportRow>
                       <AirportCode>
-                        <span className="code">{selectedFlight.fli_dest_air_iata || "---"}</span>
-                        <span className="name">{selectedFlight.fli_dest_air_icao || "---"}</span>
+                        <span className="code">
+                          {selectedFlight.fli_dest_air_iata || "---"}
+                        </span>
+                        <span className="name">
+                          {selectedFlight.fli_dest_air_icao || "---"}
+                        </span>
                       </AirportCode>
                       <FlightPathLine>
-                        <Plane size={24} style={{ transform: "rotate(90deg)" }} />
+                        <Plane
+                          size={24}
+                          style={{ transform: "rotate(90deg)" }}
+                        />
                       </FlightPathLine>
                       <AirportCode align="flex-end">
-                        <span className="code">{selectedFlight.fli_arr_air_iata || "---"}</span>
-                        <span className="name">{selectedFlight.fli_arr_air_icao || "---"}</span>
+                        <span className="code">
+                          {selectedFlight.fli_arr_air_iata || "---"}
+                        </span>
+                        <span className="name">
+                          {selectedFlight.fli_arr_air_icao || "---"}
+                        </span>
                       </AirportCode>
                     </FullPageAirportRow>
 
                     <FullPageDetailsGrid>
                       <DetailItem>
                         <span className="label">Linia lotnicza</span>
-                        <span className="val">{selectedFlight.fli_airline}</span>
+                        <span className="val">
+                          {selectedFlight.fli_airline}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Numer lotu</span>
@@ -402,56 +567,106 @@ export default function Flights() {
                       <DetailItem>
                         <span className="label">Odlot (IATA / ICAO)</span>
                         <span className="val">
-                          {selectedFlight.fli_dest_air_iata || "---"} / {selectedFlight.fli_dest_air_icao || "---"}
+                          {selectedFlight.fli_dest_air_iata || "---"} /{" "}
+                          {selectedFlight.fli_dest_air_icao || "---"}
                         </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Przylot (IATA / ICAO)</span>
                         <span className="val">
-                          {selectedFlight.fli_arr_air_iata || "---"} / {selectedFlight.fli_arr_air_icao || "---"}
+                          {selectedFlight.fli_arr_air_iata || "---"} /{" "}
+                          {selectedFlight.fli_arr_air_icao || "---"}
                         </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas odlotu</span>
-                        <span className="val">{moment.utc(selectedFlight.fli_dep_time).format("DD-MM-YYYY HH:mm")}</span>
+                        <span className="val">
+                          {moment
+                            .utc(selectedFlight.fli_dep_time)
+                            .format("DD-MM-YYYY HH:mm")}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas przylotu</span>
-                        <span className="val">{moment.utc(selectedFlight.fli_arr_time).format("DD-MM-YYYY HH:mm")}</span>
+                        <span className="val">
+                          {moment
+                            .utc(selectedFlight.fli_arr_time)
+                            .format("DD-MM-YYYY HH:mm")}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Typ maszyny</span>
-                        <span className="val">{selectedFlight.fli_aircraft_type || "Brak danych"}</span>
+                        <span className="val">
+                          {selectedFlight.fli_aircraft_type || "Brak danych"}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Samolot (Reg)</span>
-                        <span className="val">{selectedFlight.fli_aircraft || "Brak danych"}</span>
+                        <span className="val">
+                          {selectedFlight.fli_aircraft || "Brak danych"}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Miejsce (Seat)</span>
-                        <span className="val">{selectedFlight.fli_seat || "Brak danych"}</span>
+                        <span className="val">
+                          {selectedFlight.fli_seat || "Brak danych"}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Czas lotu</span>
-                        <span className="val">{formatDuration(selectedFlight.fli_duration)}</span>
+                        <span className="val">
+                          {formatDuration(selectedFlight.fli_duration)}
+                        </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Opóźnienie</span>
-                        <span className="val" style={{ color: selectedFlight.fli_delay && selectedFlight.fli_delay !== "0:00" ? "#ef4444" : "inherit" }}>
+                        <span
+                          className="val"
+                          style={{
+                            color:
+                              selectedFlight.fli_delay &&
+                              selectedFlight.fli_delay !== "0:00"
+                                ? "#ef4444"
+                                : "inherit",
+                          }}
+                        >
                           {selectedFlight.fli_delay || "Brak"}
                         </span>
                       </DetailItem>
                       <DetailItem>
                         <span className="label">Status rejsu</span>
-                        <span className="val" style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                        <span
+                          className="val"
+                          style={{
+                            color: "#10b981",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                          }}
+                        >
                           <CheckCircle size={14} /> Wylądował
                         </span>
                       </DetailItem>
                     </FullPageDetailsGrid>
 
                     {selectedFlight.notes && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Uwagi i komentarze pilota</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            color: "#64748b",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Uwagi i komentarze pilota
+                        </span>
                         <NotesBlock>{selectedFlight.notes}</NotesBlock>
                       </div>
                     )}
@@ -475,10 +690,34 @@ export default function Flights() {
       <NavBar />
       <FlightsContent>
         <div style={{ width: "100%", maxWidth: "100%" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
             <div>
-              <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>Dziennik Lotów</h1>
-              <p style={{ color: "#64748b", margin: "0.25rem 0 0 0", fontSize: "0.95rem" }}>Wszystkie Twoje zarejestrowane loty</p>
+              <h1
+                style={{
+                  fontSize: "1.8rem",
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  margin: 0,
+                }}
+              >
+                Dziennik Lotów
+              </h1>
+              <p
+                style={{
+                  color: "#64748b",
+                  margin: "0.25rem 0 0 0",
+                  fontSize: "0.95rem",
+                }}
+              >
+                Wszystkie Twoje zarejestrowane loty
+              </p>
             </div>
           </div>
 
@@ -490,14 +729,21 @@ export default function Flights() {
           )}
 
           {error && (
-            <MessageContainer style={{ color: "#ef4444", borderColor: "#fecaca", background: "#fef2f2" }}>
+            <MessageContainer
+              style={{
+                color: "#ef4444",
+                borderColor: "#fecaca",
+                background: "#fef2f2",
+              }}
+            >
               {error}
             </MessageContainer>
           )}
 
           {!loading && !error && flights.length === 0 && (
             <MessageContainer>
-              Brak lotów w Twoim logbooku. Kliknij "Dodaj lot", aby zapisać pierwszy lot!
+              Brak lotów w Twoim logbooku. Kliknij "Dodaj lot", aby zapisać
+              pierwszy lot!
             </MessageContainer>
           )}
 
@@ -521,7 +767,14 @@ export default function Flights() {
                     <SlidersHorizontal size={16} />
                     {isFiltersExpanded ? "Ukryj filtry" : "Filtry zaawansowane"}
                   </ExpandFiltersButton>
-                  {(searchQuery || departureFilter || arrivalFilter || airlineFilter || aircraftFilter || dateFrom || dateTo || sortBy !== "dateDesc") && (
+                  {(searchQuery ||
+                    departureFilter ||
+                    arrivalFilter ||
+                    airlineFilter ||
+                    aircraftFilter ||
+                    dateFrom ||
+                    dateTo ||
+                    sortBy !== "dateDesc") && (
                     <ResetFiltersBtn onClick={handleResetFilters}>
                       <RefreshCw size={14} /> Reset
                     </ResetFiltersBtn>
@@ -595,11 +848,21 @@ export default function Flights() {
                           value={sortBy}
                           onChange={(e) => setSortBy(e.target.value)}
                         >
-                          <option value="dateDesc">Data: Najnowsze pierwsze</option>
-                          <option value="dateAsc">Data: Najstarsze pierwsze</option>
-                          <option value="durationDesc">Czas lotu: Najdłuższe pierwsze</option>
-                          <option value="durationAsc">Czas lotu: Najkrótsze pierwsze</option>
-                          <option value="delayDesc">Opóźnienie: Największe pierwsze</option>
+                          <option value="dateDesc">
+                            Data: Najnowsze pierwsze
+                          </option>
+                          <option value="dateAsc">
+                            Data: Najstarsze pierwsze
+                          </option>
+                          <option value="durationDesc">
+                            Czas lotu: Najdłuższe pierwsze
+                          </option>
+                          <option value="durationAsc">
+                            Czas lotu: Najkrótsze pierwsze
+                          </option>
+                          <option value="delayDesc">
+                            Opóźnienie: Największe pierwsze
+                          </option>
                         </select>
                       </FilterInputGroup>
                     </FiltersGrid>
@@ -609,15 +872,67 @@ export default function Flights() {
                 {/* Active Filter Badges */}
                 {getActiveFiltersCount() > 0 && (
                   <ActiveBadgesRow>
-                    <span className="badges-label">Aktywne filtry ({getActiveFiltersCount()}):</span>
-                    {searchQuery && <FilterBadge>Szukaj: "{searchQuery}" <span onClick={() => setSearchQuery("")}>&times;</span></FilterBadge>}
-                    {departureFilter && <FilterBadge>Start: {departureFilter.toUpperCase()} <span onClick={() => setDepartureFilter("")}>&times;</span></FilterBadge>}
-                    {arrivalFilter && <FilterBadge>Meta: {arrivalFilter.toUpperCase()} <span onClick={() => setArrivalFilter("")}>&times;</span></FilterBadge>}
-                    {airlineFilter && <FilterBadge>Linia: {airlineFilter} <span onClick={() => setAirlineFilter("")}>&times;</span></FilterBadge>}
-                    {aircraftFilter && <FilterBadge>Maszyna: {aircraftFilter} <span onClick={() => setAircraftFilter("")}>&times;</span></FilterBadge>}
-                    {dateFrom && <FilterBadge>Od: {dateFrom} <span onClick={() => setDateFrom("")}>&times;</span></FilterBadge>}
-                    {dateTo && <FilterBadge>Do: {dateTo} <span onClick={() => setDateTo("")}>&times;</span></FilterBadge>}
-                    {sortBy !== "dateDesc" && <FilterBadge>Sortowanie: {getSortName(sortBy)} <span onClick={() => setSortBy("dateDesc")}>&times;</span></FilterBadge>}
+                    <span className="badges-label">
+                      Aktywne filtry ({getActiveFiltersCount()}):
+                    </span>
+                    {searchQuery && (
+                      <FilterBadge>
+                        Szukaj: "{searchQuery}"{" "}
+                        <span onClick={() => setSearchQuery("")}>&times;</span>
+                      </FilterBadge>
+                    )}
+                    {departureFilter && (
+                      <FilterBadge>
+                        Start: {departureFilter.toUpperCase()}{" "}
+                        <span onClick={() => setDepartureFilter("")}>
+                          &times;
+                        </span>
+                      </FilterBadge>
+                    )}
+                    {arrivalFilter && (
+                      <FilterBadge>
+                        Meta: {arrivalFilter.toUpperCase()}{" "}
+                        <span onClick={() => setArrivalFilter("")}>
+                          &times;
+                        </span>
+                      </FilterBadge>
+                    )}
+                    {airlineFilter && (
+                      <FilterBadge>
+                        Linia: {airlineFilter}{" "}
+                        <span onClick={() => setAirlineFilter("")}>
+                          &times;
+                        </span>
+                      </FilterBadge>
+                    )}
+                    {aircraftFilter && (
+                      <FilterBadge>
+                        Maszyna: {aircraftFilter}{" "}
+                        <span onClick={() => setAircraftFilter("")}>
+                          &times;
+                        </span>
+                      </FilterBadge>
+                    )}
+                    {dateFrom && (
+                      <FilterBadge>
+                        Od: {dateFrom}{" "}
+                        <span onClick={() => setDateFrom("")}>&times;</span>
+                      </FilterBadge>
+                    )}
+                    {dateTo && (
+                      <FilterBadge>
+                        Do: {dateTo}{" "}
+                        <span onClick={() => setDateTo("")}>&times;</span>
+                      </FilterBadge>
+                    )}
+                    {sortBy !== "dateDesc" && (
+                      <FilterBadge>
+                        Sortowanie: {getSortName(sortBy)}{" "}
+                        <span onClick={() => setSortBy("dateDesc")}>
+                          &times;
+                        </span>
+                      </FilterBadge>
+                    )}
                   </ActiveBadgesRow>
                 )}
               </SearchSectionCard>
@@ -640,27 +955,41 @@ export default function Flights() {
                       {filteredFlights.map((flight, idx) => (
                         <tr key={idx}>
                           <td data-label="Data">
-                            {moment.utc(flight.fli_dep_time).format("YYYY-MM-DD")}
+                            {moment
+                              .utc(flight.fli_dep_time)
+                              .format("YYYY-MM-DD")}
                           </td>
                           <td data-label="Lot" style={{ fontWeight: 700 }}>
                             {flight.fli_number}
                           </td>
                           <td data-label="Trasa">
                             <span style={{ fontWeight: 600 }}>
-                              {flight.fli_dest_air_iata || flight.fli_dest_air_icao}
+                              {flight.fli_dest_air_iata ||
+                                flight.fli_dest_air_icao}
                             </span>
-                            <span style={{ color: "#94a3b8", margin: "0 0.4rem" }}>→</span>
+                            <span
+                              style={{ color: "#94a3b8", margin: "0 0.4rem" }}
+                            >
+                              →
+                            </span>
                             <span style={{ fontWeight: 600 }}>
-                              {flight.fli_arr_air_iata || flight.fli_arr_air_icao}
+                              {flight.fli_arr_air_iata ||
+                                flight.fli_arr_air_icao}
                             </span>
                           </td>
                           <td data-label="Linia">{flight.fli_airline}</td>
                           <td data-label="Samolot">
-                            {flight.fli_aircraft_type || flight.fli_aircraft || "Brak"}
+                            {flight.fli_aircraft_type ||
+                              flight.fli_aircraft ||
+                              "Brak"}
                           </td>
-                          <td data-label="Czas">{formatDuration(flight.fli_duration)}</td>
+                          <td data-label="Czas">
+                            {formatDuration(flight.fli_duration)}
+                          </td>
                           <td data-label="Szczegóły">
-                            <ActionButton onClick={() => setSelectedFlight(flight)}>
+                            <ActionButton
+                              onClick={() => setSelectedFlight(flight)}
+                            >
                               <Info size={14} /> Zobacz
                             </ActionButton>
                           </td>
@@ -670,8 +999,19 @@ export default function Flights() {
                   </FlightTable>
                 </TableContainer>
               ) : (
-                <div style={{ padding: "3rem", textAlign: "center", color: "#64748b", background: "#ffffff", borderRadius: "16px", marginTop: "1rem", border: "1px dashed #cbd5e1" }}>
-                  Nie znaleziono lotów pasujących do podanych kryteriów wyszukiwania.
+                <div
+                  style={{
+                    padding: "3rem",
+                    textAlign: "center",
+                    color: "#64748b",
+                    background: "#ffffff",
+                    borderRadius: "16px",
+                    marginTop: "1rem",
+                    border: "1px dashed #cbd5e1",
+                  }}
+                >
+                  Nie znaleziono lotów pasujących do podanych kryteriów
+                  wyszukiwania.
                 </div>
               )}
             </FadeIn>
@@ -703,9 +1043,9 @@ const MainDiv = styled.div`
 
 const FlightsContent = styled.div`
   animation: ${fadeIn} 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex; 
+  display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: flex-start;
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -754,7 +1094,7 @@ const FlightTable = styled.table`
 
   @media (max-width: 768px) {
     display: block;
-    
+
     thead {
       display: none;
     }
@@ -774,7 +1114,7 @@ const FlightTable = styled.table`
       padding: 1.25rem 1rem;
       box-sizing: border-box;
       transition: transform 0.2s ease;
-      
+
       &:hover {
         transform: translateY(-2px);
       }
@@ -786,13 +1126,13 @@ const FlightTable = styled.table`
       border: none;
       padding: 0.6rem 0;
       border-bottom: 1px solid #f1f5f9;
-      
+
       &:last-child {
         border-bottom: none;
         padding-top: 0.75rem;
         padding-bottom: 0;
       }
-      
+
       &::before {
         content: attr(data-label);
         font-weight: 700;
@@ -905,13 +1245,19 @@ const FullPagePassHeader = styled.div`
   position: relative;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     height: 6px;
-    background: repeating-linear-gradient(90deg, #3b82f6, #3b82f6 15px, transparent 15px, transparent 30px);
+    background: repeating-linear-gradient(
+      90deg,
+      #3b82f6,
+      #3b82f6 15px,
+      transparent 15px,
+      transparent 30px
+    );
   }
 
   @media (max-width: 768px) {
@@ -929,7 +1275,7 @@ const HeaderTitleBlock = styled.div`
 
   @media (max-width: 480px) {
     gap: 0.5rem;
-    
+
     svg {
       width: 20px;
       height: 20px;
@@ -986,7 +1332,7 @@ const FullPageAirportRow = styled.div`
 const AirportCode = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${props => props.align || 'flex-start'};
+  align-items: ${(props) => props.align || "flex-start"};
 
   .code {
     font-size: 3rem;
@@ -1021,7 +1367,7 @@ const FlightPathLine = styled.div`
   margin: 0 2rem;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     height: 2px;
@@ -1130,7 +1476,7 @@ const MapWrapper = styled.div`
   border: 1px solid #e2e8f0;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-  
+
   h3 {
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
@@ -1254,15 +1600,15 @@ const SeatButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.selected ? '#dbeafe' : '#ffffff'};
-  border: 1px solid ${props => props.selected ? '#2563eb' : '#e2e8f0'};
+  background: ${(props) => (props.selected ? "#dbeafe" : "#ffffff")};
+  border: 1px solid ${(props) => (props.selected ? "#2563eb" : "#e2e8f0")};
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     transform: scale(1.05);
-    background: ${props => props.selected ? '#dbeafe' : '#f1f5f9'};
+    background: ${(props) => (props.selected ? "#dbeafe" : "#f1f5f9")};
   }
 
   @media (max-width: 600px) {
@@ -1297,8 +1643,8 @@ const LegendIndicator = styled.div`
   width: 10px;
   height: 10px;
   border-radius: 3px;
-  background: ${props => props.color};
-  border: 1px solid ${props => props.border};
+  background: ${(props) => props.color};
+  border: 1px solid ${(props) => props.border};
 `;
 
 const SearchSectionCard = styled.div`
@@ -1358,9 +1704,9 @@ const ExpandFiltersButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: ${props => props.active ? "#eff6ff" : "#ffffff"};
-  color: ${props => props.active ? "#2563eb" : "#475569"};
-  border: 1px solid ${props => props.active ? "#bfdbfe" : "#e2e8f0"};
+  background-color: ${(props) => (props.active ? "#eff6ff" : "#ffffff")};
+  color: ${(props) => (props.active ? "#2563eb" : "#475569")};
+  border: 1px solid ${(props) => (props.active ? "#bfdbfe" : "#e2e8f0")};
   padding: 0.65rem 1.25rem;
   border-radius: 10px;
   font-weight: 600;
@@ -1426,7 +1772,8 @@ const FilterInputGroup = styled.div`
     letter-spacing: 0.05em;
   }
 
-  input, select {
+  input,
+  select {
     width: 100%;
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
@@ -1486,4 +1833,3 @@ const FilterBadge = styled.span`
     }
   }
 `;
-

@@ -2,11 +2,28 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import NavBar from "../components/Navbar";
 import axios from "axios";
-import { useMap, MapContainer, TileLayer, CircleMarker, Polyline, Popup, useMapEvents } from "react-leaflet";
+import {
+  useMap,
+  MapContainer,
+  TileLayer,
+  CircleMarker,
+  Polyline,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import airports from "../data/airports.json";
-import { Plane, MapPin, Compass, Search, Filter, RefreshCw, Globe, ArrowRight } from "lucide-react";
+import {
+  Plane,
+  MapPin,
+  Compass,
+  Search,
+  Filter,
+  RefreshCw,
+  Globe,
+  ArrowRight,
+} from "lucide-react";
 import FadeIn from "react-fade-in";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -29,7 +46,7 @@ function FitBounds({ flightsData }) {
     if (!flightsData || flightsData.length === 0) return;
 
     const coords = [];
-    flightsData.forEach(flight => {
+    flightsData.forEach((flight) => {
       const dep = airports[flight.fli_dest_air_icao];
       const arr = airports[flight.fli_arr_air_icao];
       if (dep && dep.lat != null && dep.lon != null) {
@@ -53,7 +70,7 @@ function MapEvents({ onMapClick }) {
   useMapEvents({
     click: () => {
       onMapClick();
-    }
+    },
   });
   return null;
 }
@@ -95,9 +112,10 @@ export default function MapPage() {
 
         // Deduce user's home airport (airport with the highest departure counts)
         const counts = {};
-        flightsData.forEach(f => {
+        flightsData.forEach((f) => {
           if (f.fli_dest_air_icao) {
-            counts[f.fli_dest_air_icao] = (counts[f.fli_dest_air_icao] || 0) + 1;
+            counts[f.fli_dest_air_icao] =
+              (counts[f.fli_dest_air_icao] || 0) + 1;
           }
         });
         let maxCount = 0;
@@ -111,7 +129,9 @@ export default function MapPage() {
         setHomeAirport(home);
       } catch (err) {
         console.error("Błąd wczytywania lotów dla mapy:", err);
-        setError("Nie udało się pobrać danych o lotach. Spróbuj ponownie później.");
+        setError(
+          "Nie udało się pobrać danych o lotach. Spróbuj ponownie później.",
+        );
       } finally {
         setLoading(false);
       }
@@ -126,18 +146,22 @@ export default function MapPage() {
 
     if (searchAirport.trim() !== "") {
       const q = searchAirport.toLowerCase();
-      result = result.filter(f =>
-        (f.fli_dest_air_icao && f.fli_dest_air_icao.toLowerCase().includes(q)) ||
-        (f.fli_dest_air_iata && f.fli_dest_air_iata.toLowerCase().includes(q)) ||
-        (f.fli_arr_air_icao && f.fli_arr_air_icao.toLowerCase().includes(q)) ||
-        (f.fli_arr_air_iata && f.fli_arr_air_iata.toLowerCase().includes(q))
+      result = result.filter(
+        (f) =>
+          (f.fli_dest_air_icao &&
+            f.fli_dest_air_icao.toLowerCase().includes(q)) ||
+          (f.fli_dest_air_iata &&
+            f.fli_dest_air_iata.toLowerCase().includes(q)) ||
+          (f.fli_arr_air_icao &&
+            f.fli_arr_air_icao.toLowerCase().includes(q)) ||
+          (f.fli_arr_air_iata && f.fli_arr_air_iata.toLowerCase().includes(q)),
       );
     }
 
     if (searchAirline.trim() !== "") {
       const q = searchAirline.toLowerCase();
-      result = result.filter(f =>
-        f.fli_airline && f.fli_airline.toLowerCase().includes(q)
+      result = result.filter(
+        (f) => f.fli_airline && f.fli_airline.toLowerCase().includes(q),
       );
     }
 
@@ -148,7 +172,7 @@ export default function MapPage() {
   const uniqueAirports = new Set();
   const uniqueCountries = new Set();
 
-  filteredFlights.forEach(f => {
+  filteredFlights.forEach((f) => {
     if (f.fli_dest_air_icao) {
       uniqueAirports.add(f.fli_dest_air_icao);
       const details = airports[f.fli_dest_air_icao];
@@ -162,7 +186,9 @@ export default function MapPage() {
   });
 
   const getAirportFlights = (icao) => {
-    return flights.filter(f => f.fli_dest_air_icao === icao || f.fli_arr_air_icao === icao);
+    return flights.filter(
+      (f) => f.fli_dest_air_icao === icao || f.fli_arr_air_icao === icao,
+    );
   };
 
   const handleResetFilters = () => {
@@ -172,11 +198,11 @@ export default function MapPage() {
 
   // Collect unique airport positions to render markers
   const airportMarkers = {};
-  filteredFlights.forEach(flight => {
+  filteredFlights.forEach((flight) => {
     [
       { icao: flight.fli_dest_air_icao, iata: flight.fli_dest_air_iata },
-      { icao: flight.fli_arr_air_icao, iata: flight.fli_arr_air_iata }
-    ].forEach(ap => {
+      { icao: flight.fli_arr_air_icao, iata: flight.fli_arr_air_iata },
+    ].forEach((ap) => {
       if (ap.icao && airports[ap.icao] && !airportMarkers[ap.icao]) {
         const data = airports[ap.icao];
         if (data.lat != null && data.lon != null) {
@@ -187,7 +213,7 @@ export default function MapPage() {
             city: data.city,
             country: data.country,
             lat: data.lat,
-            lon: data.lon
+            lon: data.lon,
           };
         }
       }
@@ -202,12 +228,15 @@ export default function MapPage() {
       <ContentWrapper>
         <MapContent>
           <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-
             {/* Header */}
             <HeaderBlock>
               <div>
-                <Title><Compass size={28} /> Interaktywna Mapa Lotów</Title>
-                <Subtitle>Wizualizacja wszystkich Twoich tras i odwiedzonych lotnisk</Subtitle>
+                <Title>
+                  <Compass size={28} /> Interaktywna Mapa Lotów
+                </Title>
+                <Subtitle>
+                  Wizualizacja wszystkich Twoich tras i odwiedzonych lotnisk
+                </Subtitle>
               </div>
               {(searchAirport || searchAirline) && (
                 <ResetButton onClick={handleResetFilters}>
@@ -224,14 +253,19 @@ export default function MapPage() {
             )}
 
             {error && (
-              <MessageContainer style={{ color: "#ef4444", borderColor: "#fecaca", background: "#fef2f2" }}>
+              <MessageContainer
+                style={{
+                  color: "#ef4444",
+                  borderColor: "#fecaca",
+                  background: "#fef2f2",
+                }}
+              >
                 {error}
               </MessageContainer>
             )}
 
             {!loading && !error && (
               <FadeIn>
-
                 {/* Stats Bar */}
                 <StatsGrid>
                   <StatCard>
@@ -267,7 +301,9 @@ export default function MapPage() {
 
                 {/* Filters */}
                 <FiltersCard>
-                  <FilterTitle><Filter size={16} /> Filtrowanie tras</FilterTitle>
+                  <FilterTitle>
+                    <Filter size={16} /> Filtrowanie tras
+                  </FilterTitle>
                   <FiltersForm>
                     <InputWrapper>
                       <Search size={16} className="input-icon" />
@@ -299,8 +335,8 @@ export default function MapPage() {
                     style={{ height: "100%", width: "100%" }}
                   >
                     <TileLayer
-                      url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
 
                     <MapEvents onMapClick={() => setSelectedRouteIndex(null)} />
@@ -313,44 +349,77 @@ export default function MapPage() {
                       const dep = airports[flight.fli_dest_air_icao];
                       const arr = airports[flight.fli_arr_air_icao];
 
-                      if (dep && arr && dep.lat != null && dep.lon != null && arr.lat != null && arr.lon != null) {
+                      if (
+                        dep &&
+                        arr &&
+                        dep.lat != null &&
+                        dep.lon != null &&
+                        arr.lat != null &&
+                        arr.lon != null
+                      ) {
                         const isSelected = selectedRouteIndex === idx;
 
                         // Style options based on whether this route is selected, or if another route is selected
-                        const color = isSelected ? '#1e40af' : '#6366f1'; // Navy blue when selected, standard indigo otherwise
+                        const color = isSelected ? "#1e40af" : "#6366f1"; // Navy blue when selected, standard indigo otherwise
                         const weight = isSelected ? 4.5 : 2.5;
                         const opacity = isAnyRouteSelected
-                          ? (isSelected ? 1.0 : 0.05)
+                          ? isSelected
+                            ? 1.0
+                            : 0.05
                           : 0.45; // Dim others to almost transparent, highlight current
 
                         return (
                           <Polyline
                             key={`line-${idx}`}
-                            positions={[[dep.lat, dep.lon], [arr.lat, arr.lon]]}
+                            positions={[
+                              [dep.lat, dep.lon],
+                              [arr.lat, arr.lon],
+                            ]}
                             pathOptions={{
                               color: color,
                               weight: weight,
                               opacity: opacity,
-                              dashArray: 'none'
+                              dashArray: "none",
                             }}
                             eventHandlers={{
                               click: (e) => {
                                 L.DomEvent.stopPropagation(e);
-                                setSelectedRouteIndex(prev => prev === idx ? null : idx);
-                              }
+                                setSelectedRouteIndex((prev) =>
+                                  prev === idx ? null : idx,
+                                );
+                              },
                             }}
                           >
                             <Popup>
                               <PopupContainer>
-                                <PopupTitle>{flight.fli_number || "Lot"}</PopupTitle>
+                                <PopupTitle>
+                                  {flight.fli_number || "Lot"}
+                                </PopupTitle>
                                 <PopupRoute>
-                                  <span>{flight.fli_dest_air_iata || flight.fli_dest_air_icao}</span>
+                                  <span>
+                                    {flight.fli_dest_air_iata ||
+                                      flight.fli_dest_air_icao}
+                                  </span>
                                   <ArrowRight size={14} />
-                                  <span>{flight.fli_arr_air_iata || flight.fli_arr_air_icao}</span>
+                                  <span>
+                                    {flight.fli_arr_air_iata ||
+                                      flight.fli_arr_air_icao}
+                                  </span>
                                 </PopupRoute>
-                                <PopupDetail><strong>Linia:</strong> {flight.fli_airline || "Brak danych"}</PopupDetail>
-                                <PopupDetail><strong>Maszyna:</strong> {flight.fli_aircraft_type || flight.fli_aircraft || "Brak danych"}</PopupDetail>
-                                <PopupDetail><strong>Czas trwania:</strong> {formatDuration(flight.fli_duration)}</PopupDetail>
+                                <PopupDetail>
+                                  <strong>Linia:</strong>{" "}
+                                  {flight.fli_airline || "Brak danych"}
+                                </PopupDetail>
+                                <PopupDetail>
+                                  <strong>Maszyna:</strong>{" "}
+                                  {flight.fli_aircraft_type ||
+                                    flight.fli_aircraft ||
+                                    "Brak danych"}
+                                </PopupDetail>
+                                <PopupDetail>
+                                  <strong>Czas trwania:</strong>{" "}
+                                  {formatDuration(flight.fli_duration)}
+                                </PopupDetail>
                               </PopupContainer>
                             </Popup>
                           </Polyline>
@@ -367,16 +436,23 @@ export default function MapPage() {
                       // Highlight marker if it is departure/arrival of selected route, or if no route is selected
                       let isAirportHighlighted = true;
                       if (isAnyRouteSelected) {
-                        const activeFlight = filteredFlights[selectedRouteIndex];
-                        isAirportHighlighted = (activeFlight.fli_dest_air_icao === ap.icao || activeFlight.fli_arr_air_icao === ap.icao);
+                        const activeFlight =
+                          filteredFlights[selectedRouteIndex];
+                        isAirportHighlighted =
+                          activeFlight.fli_dest_air_icao === ap.icao ||
+                          activeFlight.fli_arr_air_icao === ap.icao;
                       }
 
                       // Visual options for home base and standard airports
-                      const markerColor = isHome ? '#dc2626' : '#4f46e5'; // Red for home, Indigo for normal
-                      const fillColor = isHome ? '#ef4444' : '#818cf8';
+                      const markerColor = isHome ? "#dc2626" : "#4f46e5"; // Red for home, Indigo for normal
+                      const fillColor = isHome ? "#ef4444" : "#818cf8";
                       const radius = isHome ? 10 : 7;
                       const opacity = isAirportHighlighted ? 1.0 : 0.1;
-                      const fillOpacity = isAirportHighlighted ? (isHome ? 0.95 : 0.85) : 0.05;
+                      const fillOpacity = isAirportHighlighted
+                        ? isHome
+                          ? 0.95
+                          : 0.85
+                        : 0.05;
 
                       return (
                         <CircleMarker
@@ -388,28 +464,53 @@ export default function MapPage() {
                             fillColor: fillColor,
                             fillOpacity: fillOpacity,
                             opacity: opacity,
-                            weight: isHome ? 2.5 : 1.5
+                            weight: isHome ? 2.5 : 1.5,
                           }}
                         >
                           <Popup>
                             <PopupContainer>
-                              <PopupTitle style={{ color: isHome ? '#dc2626' : '#1e293b' }}>
+                              <PopupTitle
+                                style={{
+                                  color: isHome ? "#dc2626" : "#1e293b",
+                                }}
+                              >
                                 {ap.name} {isHome && "(Twój port bazowy 🏠)"}
                               </PopupTitle>
-                              <PopupDetail><strong>Kod ICAO/IATA:</strong> {ap.icao} / {ap.iata || "---"}</PopupDetail>
-                              <PopupDetail><strong>Miasto:</strong> {ap.city}, {ap.country}</PopupDetail>
-                              <div style={{ margin: "8px 0 3px 0", borderTop: "1px solid #e2e8f0", paddingTop: "5px", fontSize: "0.8rem", fontWeight: "bold" }}>
+                              <PopupDetail>
+                                <strong>Kod ICAO/IATA:</strong> {ap.icao} /{" "}
+                                {ap.iata || "---"}
+                              </PopupDetail>
+                              <PopupDetail>
+                                <strong>Miasto:</strong> {ap.city}, {ap.country}
+                              </PopupDetail>
+                              <div
+                                style={{
+                                  margin: "8px 0 3px 0",
+                                  borderTop: "1px solid #e2e8f0",
+                                  paddingTop: "5px",
+                                  fontSize: "0.8rem",
+                                  fontWeight: "bold",
+                                }}
+                              >
                                 Powiązane loty ({associatedFlights.length}):
                               </div>
                               <FlightsMiniList>
                                 {associatedFlights.slice(0, 5).map((f, i) => (
                                   <MiniListItem key={i}>
-                                    <strong>{f.fli_number}</strong>: {f.fli_dest_air_iata} → {f.fli_arr_air_iata} ({f.fli_airline})
+                                    <strong>{f.fli_number}</strong>:{" "}
+                                    {f.fli_dest_air_iata} → {f.fli_arr_air_iata}{" "}
+                                    ({f.fli_airline})
                                   </MiniListItem>
                                 ))}
                                 {associatedFlights.length > 5 && (
-                                  <MiniListItem style={{ color: "#64748b", fontStyle: "italic" }}>
-                                    oraz {associatedFlights.length - 5} więcej...
+                                  <MiniListItem
+                                    style={{
+                                      color: "#64748b",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    oraz {associatedFlights.length - 5}{" "}
+                                    więcej...
                                   </MiniListItem>
                                 )}
                               </FlightsMiniList>
@@ -422,14 +523,22 @@ export default function MapPage() {
                 </MapOuterWrapper>
 
                 {filteredFlights.length === 0 && (
-                  <div style={{ padding: "2rem", textAlign: "center", color: "#64748b", background: "#ffffff", borderRadius: "16px", marginTop: "1rem", border: "1px dashed #cbd5e1" }}>
+                  <div
+                    style={{
+                      padding: "2rem",
+                      textAlign: "center",
+                      color: "#64748b",
+                      background: "#ffffff",
+                      borderRadius: "16px",
+                      marginTop: "1rem",
+                      border: "1px dashed #cbd5e1",
+                    }}
+                  >
                     Brak lotów spełniających kryteria filtrowania.
                   </div>
                 )}
-
               </FadeIn>
             )}
-
           </div>
         </MapContent>
       </ContentWrapper>
@@ -519,7 +628,7 @@ const ResetButton = styled.button`
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   &:hover {
     background-color: #f8fafc;
@@ -544,7 +653,9 @@ const StatCard = styled.div`
   background: #ffffff;
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
   border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
@@ -552,8 +663,8 @@ const StatCard = styled.div`
 `;
 
 const StatIconWrapper = styled.div`
-  background: ${props => props.color}15;
-  color: ${props => props.color};
+  background: ${(props) => props.color}15;
+  color: ${(props) => props.color};
   padding: 0.75rem;
   border-radius: 12px;
   display: flex;

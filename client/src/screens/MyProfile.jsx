@@ -364,7 +364,7 @@ export default function MyProfile() {
     fetchStats();
   }, []);
 
-  function formatToYYYYMMDD(iso, { useUtc = true } = {}) {
+  function formatToDDMMYYYY(iso, { useUtc = true } = {}) {
     if (!iso && iso !== 0) return null;
     const date = iso instanceof Date ? iso : new Date(iso);
     if (Number.isNaN(date.getTime())) return null;
@@ -374,7 +374,7 @@ export default function MyProfile() {
     const mm = String(month).padStart(2, "0");
     const dd = String(day).padStart(2, "0");
 
-    return `${year}-${mm}-${dd}`;
+    return `${dd}.${mm}.${year}`;
   }
 
   const initials = `${profile?.surname[0]}${profile?.name[0]}`;
@@ -469,7 +469,7 @@ export default function MyProfile() {
                 </StatHeader>
                 <Divider />
                 <FadeIn>
-                  <StatValue>{formatToYYYYMMDD(profile?.last_flight)}</StatValue>
+                  <StatValue>{formatToDDMMYYYY(profile?.last_flight)}</StatValue>
                   <StatSubtext>To właśnie tego dnia ostatni raz leciałeś samolotem</StatSubtext>
                 </FadeIn>
               </StatCard>
